@@ -1,1 +1,1 @@
-# theives-of-thebes
+# thieves-of-thebes
