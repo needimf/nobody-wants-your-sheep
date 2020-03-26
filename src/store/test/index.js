@@ -1,5 +1,3 @@
-import firebase from '../../firebase';
-
 export default (state = {}, action) => {
   switch(action.type) {
     case 'sync':

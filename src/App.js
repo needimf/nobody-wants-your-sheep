@@ -1,5 +1,4 @@
 import React from 'react';
-import {connect} from 'react-redux';
 import logo from './logo.svg';
 import './App.css';
 import ListItem from './components'
