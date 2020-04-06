@@ -4,7 +4,7 @@
   "description": "",
   "private": true,
   "scripts": {
-    "dev": "concurrently 'webpack --mode development' 'firebase serve --only hosting --port=5005'",
+    "dev": "concurrently 'webpack --watch --mode development' 'firebase serve --only hosting --port=5005'",
     "build": "webpack --mode production"
   },
   "keywords": [],
@@ -33,6 +33,7 @@
   "dependencies": {
     "react-redux": "^7.2.0",
     "redux": "^4.0.5",
+    "redux-first-router": "^2.1.5",
     "redux-thunk": "^2.3.0"
   },
   "eslintConfig": {

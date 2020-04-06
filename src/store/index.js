@@ -1,6 +1,7 @@
-import {combineReducers} from 'redux';
 import test from './test';
+import router from './router';
 
-export default combineReducers({
+export default {
+  page: router,
   test,
-});
+};

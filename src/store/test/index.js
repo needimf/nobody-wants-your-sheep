@@ -1,7 +1,9 @@
 export default (state = {}, action) => {
-  switch(action.type) {
+  console.log(action, state);
+  // debugger;
+  switch (action.type) {
     case 'sync':
-      return {...state, test: action.payload };
+      return { ...state, test: action.payload };
     default:
       return state;
   }
