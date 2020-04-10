@@ -13,7 +13,8 @@ const mapDispatchToProps = (dispatch, props) => {
     
 class User extends Component {
   componentDidMount() {
-    _generateGameGrid();
+    const gameBoard = _generateGameGrid();
+    assignTilesAndNumberTokensToNewBoard(gameBoard);
   }
 
   render() {
@@ -92,9 +93,66 @@ function _generateGameGrid() {
     }
   }
 
-  console.log('board', board, Object.keys(board).length);
+  return board;
+}
+
+function assignTilesAndNumberTokensToNewBoard(gameBoard) {
+  const tileCoordinates = Object.keys(gameBoard).filter((coordinate) => gameBoard[coordinate] && coordinate !== '0,0,0' && gameBoard[coordinate].type === 'tile');
+  let tileAssignmentCount = 0;
+  const totalTilesToBeAssignedCount = Object.values(TILES).reduce((acc, cur) => acc + cur, 0)
+  const tileAssignments = {};
+  const tileTypes = Object.keys(TILES);
+
+  while(tileAssignmentCount < totalTilesToBeAssignedCount) {
+    const typeToAssign = tileTypes[getRandomInt(0, tileTypes.length)];
+    const typeCanBeAssigned = ((tileAssignments[typeToAssign] && tileAssignments[typeToAssign].length) || 0) < TILES[typeToAssign];
+
+    if (typeCanBeAssigned) {
+      if (typeToAssign === 'desert') {
+        tileAssignments[typeToAssign] = ['0,0,0'];
+      } else {
+        const coordinate = tileCoordinates.pop();
+        if (tileAssignments[typeToAssign]) {
+          tileAssignments[typeToAssign].push(coordinate);
+        } else {
+          tileAssignments[typeToAssign] = [coordinate];
+        };
+      }
+
+      tileAssignmentCount += 1;
+    }
+  }
+
 }
 
 function _calculateManhattanDistance(origin, point) {
   return (Math.abs(origin.x - point.x) + Math.abs(origin.y - point.y) + Math.abs(origin.z - point.z)) / 2 
+}
+
+const TILES = {
+  brick: 3,
+  wood: 4,
+  ore: 3,
+  wheat: 4,
+  sheep: 4,
+  desert: 1,
+};
+
+const NUMBER_TOKENS = {
+  2: 1,
+  3: 2,
+  4: 2,
+  5: 2,
+  6: 2,
+  8: 2,
+  9: 2,
+  10: 2,
+  11: 2,
+  12: 1,
+}
+
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
 }
