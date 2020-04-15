@@ -2,7 +2,7 @@ import { NOT_FOUND } from 'redux-first-router';
 
 const components = {
   HOME: 'home',
-  USER: 'user',
+  GAMEBOARD: 'gameBoard',
   [NOT_FOUND]: 'notFound',
 };
 

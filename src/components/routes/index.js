@@ -1,11 +1,11 @@
 import home from './home';
 import notFound from './notFound';
-import user from './user';
+import gameBoard from './gameBoard';
 
 const output = {
   home,
   notFound,
-  user,
+  gameBoard,
 };
 
 export default output;

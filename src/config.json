@@ -1,6 +1,6 @@
 {
   "router": {
     "HOME": "/",
-    "USER": "/user/:id"
+    "GAMEBOARD": "/gameboard/:id"
   }
 }
