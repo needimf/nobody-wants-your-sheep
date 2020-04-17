@@ -1,11 +1,9 @@
-import home from './home';
+import home from './home/index.js';
 import notFound from './notFound';
-import user from './user';
 
 const output = {
   home,
   notFound,
-  user,
 };
 
 export default output;
