@@ -1,6 +1,5 @@
 {
   "router": {
-    "HOME": "/",
-    "USER": "/user/:id"
+    "HOME": "/"
   }
 }

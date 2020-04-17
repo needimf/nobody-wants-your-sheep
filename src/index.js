@@ -4,6 +4,8 @@ import { Provider } from 'react-redux';
 import configureStore from './configureStore';
 import Components from './components';
 
+import './index.css';
+
 const store = configureStore();
 const config = {
   apiKey: process.env.REACT_APP_API_KEY,
