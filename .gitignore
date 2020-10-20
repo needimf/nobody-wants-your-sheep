@@ -11,6 +11,12 @@
 # production
 /build
 
+# firebase
+/.firebase
+
+# linter cache
+.eslintcache
+
 # misc
 .DS_Store
 .env
