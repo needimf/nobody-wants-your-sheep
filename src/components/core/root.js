@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import routes from '../routes';
 
 const App = ({ page }) => {
+  console.log('page', page);
   const Component = routes[page];
   return <Component />;
 }

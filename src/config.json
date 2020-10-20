@@ -1,5 +1,7 @@
 {
   "router": {
-    "HOME": "/"
+    "HOME": "/",
+    "DEV": "/dev",
+    "GAME": "/play/:gameId"
   }
 }
