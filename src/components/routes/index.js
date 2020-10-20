@@ -1,11 +1,13 @@
-import home from './home/index.js';
+import home from './home';
 import notFound from './notFound';
-import gameBoard from './gameBoard';
+import dev from './dev';
+import game from './game';
 
 const output = {
   home,
   notFound,
-  gameBoard,
+  dev,
+  game,
 };
 
 export default output;
