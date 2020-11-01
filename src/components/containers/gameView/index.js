@@ -1,7 +1,7 @@
-import React, {Component, useCallback} from 'react';
+import React, {Component, Suspense, useCallback} from 'react';
 import {connect} from 'react-redux';
 import * as THREE from 'three';
-import { Canvas } from 'react-three-fiber';
+import { Canvas, useLoader } from 'react-three-fiber';
 
 import './index.css';
 
@@ -13,6 +13,45 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = (dispatch, props) => {
   return ({})
+}
+
+function Hex({index, tile}) {
+  console.log('HEX tile' + tile);
+  const positions = [[0,0,0], [1.73,0,0], [.868,0,1.49], [-.868,0,1.49], [-1.73, 0,0], [-.868, 0, -1.49],
+                    [.868, 0, -1.49], [2.598, 0, -1.49], [3.46, 0, 0], [2.598, 0, 1.49], [1.73, 0, 2.98],
+                    [0,0,2.98], [-1.73, 0, 2.98], [-2.598, 0, 1.49],[-3.46, 0, 0], [-2.598, 0, -1.49],
+                    [-1.73, 0, -2.98], [0, 0, -2.98], [1.73, 0, -2.98]]
+  let img;
+  switch (tile) {
+    case 'ore':
+      img = useLoader(THREE.TextureLoader, "https://1.bp.blogspot.com/-t7a4HzPEUa0/WH948JIm90I/AAAAAAAAEZI/ofFODClpqx0aCQ5TyGc_Q1bRg0YSe83sgCLcB/s1600/iron.png");
+      break;
+    case 'wheat':
+      img = useLoader(THREE.TextureLoader, "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRLCZWXF8sN2b6gvFTAUmkZtBXMdHQCVXOPQQ&usqp=CAU");
+      break;
+    case 'brick':
+      img = useLoader(THREE.TextureLoader, "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSoCmlryLbo4b0QeopuY_LaRgbGumw5IQvaKA&usqp=CAU");
+      break;
+    case 'sheep':
+      img = useLoader(THREE.TextureLoader, "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSVAKJ-oP9WNj7p6sLhFBR1tuXh30uT2fZVaA&usqp=CAU");
+      break;
+    case 'wood':
+      img = useLoader(THREE.TextureLoader, "https://cdn.friendsoftheearth.uk/sites/default/files/styles/hero_image/public/media/images/wood-1209632_1920.jpg?itok=db72amh_");
+      break;
+    default:
+      img = useLoader(THREE.TextureLoader, "https://upload.wikimedia.org/wikipedia/commons/3/34/Rub_al_Khali_002.JPG");
+      break;
+  }
+  return (
+    <>
+      <mesh position={positions[index]} rotation={[0, Math.PI / 2, 0]}>
+        {/* <arrowHelper></arrowHelper> */}
+        <cylinderBufferGeometry attach="geometry" args={[1,1,.01,6,1,false,11]} />
+        <meshBasicMaterial attach="material" map={img} color="white">
+        </meshBasicMaterial>
+      </mesh>
+    </>
+  )
 }
 
 function Line({gameBoard}) {
@@ -162,24 +201,39 @@ class GameView extends Component {
   }
 
   render() {
+    console.log(this.props.gameState.tileAssignments)
     return (
       <Canvas
-      camera={{ position: [-6, 6, 6], fov: 70}}
+      camera={{ position: [0, 10, 0], fov: 70}}
       style={{width: window.innerWidth, height: window.innerHeight}}
       pixelRatio={window.pixelRatio}
       >
-        <points>
-          <bufferGeometry attach="geometry">
-            <bufferAttribute
-              attachObject={['attributes', 'position']}
-              count={this.state.positions.length / 3}
-              array={this.state.positions}
-              itemSize={3}
-            />
-          </bufferGeometry>
-          <pointsMaterial size={.1} color="white" transparent opacity={1.0} />
-        </points>
-        <Line gameBoard={this.props.gameState.gameGrid} />
+        <axesHelper args={1} />
+        <Suspense fallback={null}>
+          {Object.values(this.props.gameState.tileAssignments).map((tile, index) => {
+            return (<Hex index={index} tile={tile} key={index} />);
+          })}
+          {/* <Hex index={0} tile={""} />
+          <Hex index={1} tile={""} />
+          <Hex index={2} tile={""} />
+          <Hex index={3} tile={""} />
+          <Hex index={4} tile={""} />
+          <Hex index={5} tile={""} />
+          <Hex index={6} tile={""} />
+          <Hex index={7} tile={""} />
+          <Hex index={8} tile={""} />
+          <Hex index={9} tile={""} />
+          <Hex index={10} tile={""} />
+          <Hex index={11} tile={""} />
+          <Hex index={18} tile={""} />
+          <Hex index={12} tile={""} />
+          <Hex index={13} tile={""} />
+          <Hex index={14} tile={""} />
+          <Hex index={15} tile={""} />
+          <Hex index={16} tile={""} />
+          <Hex index={17} tile={""} /> */}
+        </Suspense>
+        {/* <Line gameBoard={this.props.gameState.gameGrid} /> */}
       </Canvas>
     );
   }
