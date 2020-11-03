@@ -1,4 +1,4 @@
-import React, {Component, Suspense, useCallback} from 'react';
+import React, {Component, Suspense, useCallback, useState, useRef} from 'react';
 import {connect} from 'react-redux';
 import * as THREE from 'three';
 import { Canvas, useLoader } from 'react-three-fiber';
@@ -17,32 +17,33 @@ const mapDispatchToProps = (dispatch, props) => {
 
 function Hex({position, tile}) {
   let img;
-  switch (tile) {
-    case 'ore':
-      img = useLoader(THREE.TextureLoader, "https://1.bp.blogspot.com/-t7a4HzPEUa0/WH948JIm90I/AAAAAAAAEZI/ofFODClpqx0aCQ5TyGc_Q1bRg0YSe83sgCLcB/s1600/iron.png");
-      break;
-    case 'wheat':
-      img = useLoader(THREE.TextureLoader, "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRLCZWXF8sN2b6gvFTAUmkZtBXMdHQCVXOPQQ&usqp=CAU");
-      break;
-    case 'brick':
-      img = useLoader(THREE.TextureLoader, "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSoCmlryLbo4b0QeopuY_LaRgbGumw5IQvaKA&usqp=CAU");
-      break;
-    case 'sheep':
-      img = useLoader(THREE.TextureLoader, "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSVAKJ-oP9WNj7p6sLhFBR1tuXh30uT2fZVaA&usqp=CAU");
-      break;
-    case 'wood':
-      img = useLoader(THREE.TextureLoader, "https://cdn.friendsoftheearth.uk/sites/default/files/styles/hero_image/public/media/images/wood-1209632_1920.jpg?itok=db72amh_");
-      break;
-    default:
-      img = useLoader(THREE.TextureLoader, "https://upload.wikimedia.org/wikipedia/commons/3/34/Rub_al_Khali_002.JPG");
-      break;
-  }
+  // switch (tile) {
+  //   case 'ore':
+  //     img = useLoader(THREE.TextureLoader, "");
+  //     break;
+  //   case 'wheat':
+  //     img = useLoader(THREE.TextureLoader, "");
+  //     break;
+  //   case 'brick':
+  //     img = useLoader(THREE.TextureLoader, "");
+  //     break;
+  //   case 'sheep':
+  //     img = useLoader(THREE.TextureLoader, "");
+  //     break;
+  //   case 'wood':
+  //     img = useLoader(THREE.TextureLoader, "");
+  //     break;
+  //   default:
+  //     img = useLoader(THREE.TextureLoader, "");
+  //     break;
+  // }
+  const [hover, setHover] = useState(false);
   return (
     <>
-      <mesh position={position} rotation={[Math.PI/2, 0, 0]}>
+      <mesh position={position} rotation={[Math.PI/2, 0, 0]} onPointerOver={()=> setHover(true)} onPointerOut={() => setHover(false)}>
         {/* <arrowHelper></arrowHelper> */}
-        <cylinderBufferGeometry attach="geometry" args={[1,1,.01,6]} />
-        <meshBasicMaterial attach="material" map={img} color="white">
+        <cylinderBufferGeometry attach="geometry" args={[10,10,.01,6]} />
+        <meshBasicMaterial attach="material" color={hover ? 'green' : 'blue'}>
         </meshBasicMaterial>
       </mesh>
     </>
@@ -100,22 +101,44 @@ function Point({gameBoard}) {
     }
   });
   let i = 0;
+  let color = [];
   while(i < tileArray.length) {
     let x = tileArray[i];
-    tileArray[i] = tileArray[i+2] * (Math.sqrt(3)/2);
-    tileArray[i+1] = (x + tileArray[i+1]) / 2;
+    tileArray[i] = (tileArray[i+2] * (Math.sqrt(3)/2))*10;
+    tileArray[i+1] = ((x + tileArray[i+1]) / 2) *10;
     tileArray[i+2] = .1;
+    color.push(0);
+    color.push(0);
+    color.push(10);
     i+=3;
   }
-
   var positions = new Float32Array(tileArray);
+  var colors = new Float32Array(color);
+  const attrib = useRef();
+  const hover = useCallback(e => {
+    e.stopPropagation()
+    attrib.current.array[e.index * 3] = 0
+    attrib.current.array[e.index * 3 + 1] = 10
+    attrib.current.array[e.index * 3 + 2] = 0
+    attrib.current.needsUpdate = true
+  }, [])
 
+  const unhover = useCallback(e => {
+    attrib.current.array[e.index * 3] = 0
+    attrib.current.array[e.index * 3 + 1] = 0
+    attrib.current.array[e.index * 3 + 2] = 10
+    attrib.current.needsUpdate = true
+  }, [])
   return (
-    <points>
+    <points 
+      onPointerOver={hover}
+      onPointerOut={unhover}
+    >
       <bufferGeometry attach="geometry">
         <bufferAttribute attachObject={["attributes", "position"]} count={positions.length / 3} array={positions} itemSize={3} />
+        <bufferAttribute ref={attrib} attachObject={["attributes", "color"]} count={colors.length /3} array={colors} itemSize={3} />
       </bufferGeometry>
-      <pointsMaterial attach="material" color="white" size={.2} />
+      <pointsMaterial attach="material" vertexColors size={3} />
     </points>
   )
 }
@@ -125,27 +148,26 @@ function BoardRender({gameBoard}) {
   let tileArray = [];
   Object.keys(board).map(key => {
     if(board[key] && board[key].type === 'tile') {
-      key.split(',').forEach((string) => {
-        tileArray.push(parseInt(string))
-      });
+      // Set initail tile position
+      let tilePos = [0,0,0];
+      // Get tile position from board dictionary
+      let tileXYZ = key.split(',');
+      // Parse strings to ints
+      tileXYZ[0] = parseInt(tileXYZ[0]);
+      tileXYZ[1] = parseInt(tileXYZ[1]);
+      tileXYZ[2] = parseInt(tileXYZ[2]);
+      // Calculate 2 coords from 3
+      tilePos[0] = (tileXYZ[2] * (Math.sqrt(3))/2) * 10;
+      tilePos[1] = ((tileXYZ[0] + tileXYZ[1]) / 2) * 10;
+      tilePos[2] = 0;
+      // Push array with point positions to Array
+      tileArray.push(tilePos);
     }
   });
-  console.log(tileArray);
-  let i = 0;
-  let tileArrayArray = [];
-  while(i < tileArray.length) {
-    let x = tileArray[i];
-    tileArray[i] = tileArray[i+2] * (Math.sqrt(3)/2);
-    tileArray[i+1] = (x + tileArray[i+1]) / 2;
-    tileArray[i+2] = 0;
-    tileArrayArray.push([tileArray[i], tileArray[i+1], tileArray[i+2]]);
-    i+=3;
-  }
-
-  var positions = new Float32Array(tileArray);
 
   return (
-    tileArrayArray.map((val, index) => {
+    // Map through array and render a Hex piece on each tile position, with associated tile type
+    tileArray.map((val, index) => {
       return(
         <Hex position={val} key={index} tile='hi' />
       )
@@ -178,22 +200,15 @@ class GameView extends Component {
     console.log(this.props.gameState)
     return (
       <Canvas
-      camera={{ position: [0, 0, 10], fov: 70}}
+      camera={{ orthographic: true, position: [0, 0, 70]}}
       style={{width: window.innerWidth, height: window.innerHeight}}
       pixelRatio={window.pixelRatio}
       >
         <axesHelper args={10} />
-        {/* <Suspense fallback={null}>
-          {Object.values(this.props.gameState.tileAssignments).map((tile, index) => {
-            return (<Hex index={index} tile={tile} key={index} />);
-          })}
-        </Suspense> */}
-        {/* <Point postion={[1, 1, 1]} /> */}
         <Suspense fallback={null}>
           <BoardRender gameBoard={this.props.gameState.gameGrid} />
           <Point gameBoard={this.props.gameState.gameGrid} />
         </Suspense>
-        {/* <Line gameBoard={this.props.gameState.gameGrid} /> */}
       </Canvas>
     );
   }
