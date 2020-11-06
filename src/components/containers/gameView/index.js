@@ -1,7 +1,8 @@
-import React, {Component, Suspense, useCallback, useState, useRef} from 'react';
+import React, {Component, Suspense, useCallback, useState, useRef, useMemo} from 'react';
 import {connect} from 'react-redux';
 import * as THREE from 'three';
 import { Canvas, useLoader } from 'react-three-fiber';
+import helvetikerBold from 'three/examples/fonts/helvetiker_bold.typeface.json';
 
 import './index.css';
 
@@ -174,6 +175,22 @@ function BoardRender({gameBoard}) {
     })
   )
 }
+
+function NumberTile() {
+  var loader = new THREE.FontLoader();
+  var font = loader.parse(helvetikerBold);
+
+  const config = useMemo(() => ({font, size: 8, height: 1, curveSegments: 20}),
+  [font]);
+
+  return (
+    <mesh position={[-3,-4,0]}>
+      <textGeometry attach="geometry" args={['6', config]} />
+      <meshBasicMaterial attach="material" color='white' />
+    </mesh>
+  )
+
+}
     
 class GameView extends Component {
   constructor(props) {
@@ -197,7 +214,6 @@ class GameView extends Component {
   }
 
   render() {
-    console.log(this.props.gameState)
     return (
       <Canvas
       camera={{ orthographic: true, position: [0, 0, 70]}}
@@ -208,6 +224,7 @@ class GameView extends Component {
         <Suspense fallback={null}>
           <BoardRender gameBoard={this.props.gameState.gameGrid} />
           <Point gameBoard={this.props.gameState.gameGrid} />
+          <NumberTile />
         </Suspense>
       </Canvas>
     );
