@@ -62,6 +62,18 @@ module.exports = {
         from: './src/assets/icons/favicon/site.webmanifest',
         to: './assets/icons/favicon/site.webmanifest',
       },
+      {
+        from: './src/assets/tiles/treeTile.jpg',
+        to: './assets/tiles/treeTile.jpg',
+      },
+      {
+        from: './src/assets/tiles/wheatTile.jpg',
+        to: './assets/tiles/wheatTile.jpg',
+      },
+      {
+        from: './src/assets/tiles/desertTile.jpg',
+        to: './assets/tiles/desertTile.jpg',
+      },
     ]),
   ],
 };

@@ -18,33 +18,34 @@ const mapDispatchToProps = (dispatch, props) => {
 
 function Hex({position, tile}) {
   let img;
-  // switch (tile) {
-  //   case 'ore':
-  //     img = useLoader(THREE.TextureLoader, "");
-  //     break;
-  //   case 'wheat':
-  //     img = useLoader(THREE.TextureLoader, "");
-  //     break;
-  //   case 'brick':
-  //     img = useLoader(THREE.TextureLoader, "");
-  //     break;
-  //   case 'sheep':
-  //     img = useLoader(THREE.TextureLoader, "");
-  //     break;
-  //   case 'wood':
-  //     img = useLoader(THREE.TextureLoader, "");
-  //     break;
-  //   default:
-  //     img = useLoader(THREE.TextureLoader, "");
-  //     break;
-  // }
+  switch (tile) {
+    case 'ore':
+      img = useLoader(THREE.TextureLoader, "");
+      break;
+    case 'wheat':
+      img = useLoader(THREE.TextureLoader, '../../assets/tiles/wheatTile.jpg');
+      break;
+    case 'brick':
+      img = useLoader(THREE.TextureLoader, "");
+      break;
+    case 'sheep':
+      img = useLoader(THREE.TextureLoader, "");
+      break;
+    case 'wood':
+      img = useLoader(THREE.TextureLoader, '../../assets/tiles/treeTile.jpg');
+      break;
+    default:
+      img = useLoader(THREE.TextureLoader, '../../assets/tiles/desertTile.jpg');
+      break;
+  }
+
   const [hover, setHover] = useState(false);
   return (
     <>
       <mesh position={position} rotation={[Math.PI/2, 0, 0]} onPointerOver={()=> setHover(true)} onPointerOut={() => setHover(false)}>
         {/* <arrowHelper></arrowHelper> */}
         <cylinderBufferGeometry attach="geometry" args={[10,10,.01,6]} />
-        <meshBasicMaterial attach="material" color={hover ? 'green' : 'blue'}>
+        <meshBasicMaterial attach="material" map={img}>
         </meshBasicMaterial>
       </mesh>
     </>
@@ -144,9 +145,10 @@ function Point({gameBoard}) {
   )
 }
 
-function BoardRender({gameBoard}) {
+function BoardRender({gameBoard, tokens, tiles}) {
   let board = gameBoard;
   let tileArray = [];
+  let tilePositions = [];
   Object.keys(board).map(key => {
     if(board[key] && board[key].type === 'tile') {
       // Set initail tile position
@@ -157,6 +159,7 @@ function BoardRender({gameBoard}) {
       tileXYZ[0] = parseInt(tileXYZ[0]);
       tileXYZ[1] = parseInt(tileXYZ[1]);
       tileXYZ[2] = parseInt(tileXYZ[2]);
+      tilePositions.push(tileXYZ);
       // Calculate 2 coords from 3
       tilePos[0] = (tileXYZ[2] * (Math.sqrt(3))/2) * 10;
       tilePos[1] = ((tileXYZ[0] + tileXYZ[1]) / 2) * 10;
@@ -166,26 +169,43 @@ function BoardRender({gameBoard}) {
     }
   });
 
+  var assign = {
+    "0,-3,3": 2,
+    "-2,2,-4": 3, "2,1,1": 3,
+    "2,4,-2": 4, "3,0,3": 4,
+    "-4,-2,-2": 5, "3,3,0": 5,
+    "0,3,-3": 6, "-3,0,-3": 6,
+    "-3,-3,0": 8, "-2,-1,-1": 8,
+    "-1,1,-2": 9, "-1,-2,1": 9,
+    "1,2,-1": 10, "1,-1,2": 10,
+    "2,-2,4": 11, "-2,-4,2": 11,
+    "4,2,2": 12
+  }
   return (
     // Map through array and render a Hex piece on each tile position, with associated tile type
-    tileArray.map((val, index) => {
+    tileArray.map((pos, index) => {
       return(
-        <Hex position={val} key={index} tile='hi' />
+        <Suspense fallback={null}>
+          <Hex position={pos} key={index} tile={tiles[tilePositions[index]]} />
+          <NumberTile position={pos} number={assign[pos]} key={index} />
+        </Suspense>
       )
     })
   )
 }
 
-function NumberTile() {
+function NumberTile({position, number}) {
   var loader = new THREE.FontLoader();
   var font = loader.parse(helvetikerBold);
-
   const config = useMemo(() => ({font, size: 8, height: 1, curveSegments: 20}),
   [font]);
+  if(number===undefined) {
+    var number = '|';
+  }
 
   return (
-    <mesh position={[-3,-4,0]}>
-      <textGeometry attach="geometry" args={['6', config]} />
+    <mesh position={[position[0]-4,position[1], position[2]]}>
+      <textGeometry attach="geometry" center={true} args={[number, config]} />
       <meshBasicMaterial attach="material" color='white' />
     </mesh>
   )
@@ -193,26 +213,6 @@ function NumberTile() {
 }
     
 class GameView extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      // scene: null,
-      // camera: null,
-      // renderer,
-      // geometry,
-      // geometry2,
-      // vertices,
-      positions: [],
-      tileArray: [],
-      ready: false,
-      // colors,
-      // sizes,
-      // objects: [],
-      // mouse,
-      // raycaster
-    }
-  }
-
   render() {
     return (
       <Canvas
@@ -222,9 +222,8 @@ class GameView extends Component {
       >
         <axesHelper args={10} />
         <Suspense fallback={null}>
-          <BoardRender gameBoard={this.props.gameState.gameGrid} />
+          <BoardRender gameBoard={this.props.gameState.gameGrid} tokens={this.props.gameState.numberTokenAssignments} tiles={this.props.gameState.tileAssignments} />
           <Point gameBoard={this.props.gameState.gameGrid} />
-          <NumberTile />
         </Suspense>
       </Canvas>
     );
