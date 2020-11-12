@@ -35,7 +35,7 @@ function Hex({position, tile}) {
       img = useLoader(THREE.TextureLoader, '../../assets/tiles/treeTile.jpg');
       break;
     default:
-      img = useLoader(THREE.TextureLoader, '../../assets/tiles/desertTile.jpg');
+      img = useLoader(THREE.TextureLoader, '../../assets/tiles/desertTile2.jpg');
       break;
   }
 

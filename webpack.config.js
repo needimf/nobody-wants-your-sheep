@@ -74,6 +74,10 @@ module.exports = {
         from: './src/assets/tiles/desertTile.jpg',
         to: './assets/tiles/desertTile.jpg',
       },
+      {
+        from: './src/assets/tiles/desertTile2.jpg',
+        to: './assets/tiles/desertTile2.jpg',
+      },
     ]),
   ],
 };
