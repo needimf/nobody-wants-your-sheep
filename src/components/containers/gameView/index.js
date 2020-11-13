@@ -1,7 +1,7 @@
 import React, {Component, Suspense, useCallback, useState, useRef, useMemo} from 'react';
 import {connect} from 'react-redux';
 import * as THREE from 'three';
-import { Canvas, useLoader } from 'react-three-fiber';
+import { Canvas, useLoader, useThree, useFrame } from 'react-three-fiber';
 import helvetikerBold from 'three/examples/fonts/helvetiker_bold.typeface.json';
 
 import './index.css';
@@ -20,19 +20,19 @@ function Hex({position, tile}) {
   let img;
   switch (tile) {
     case 'ore':
-      img = useLoader(THREE.TextureLoader, "");
+      img = useLoader(THREE.TextureLoader, '../../assets/tiles/stoneTile.jpg');
       break;
     case 'wheat':
-      img = useLoader(THREE.TextureLoader, '../../assets/tiles/wheatTile.jpg');
+      img = useLoader(THREE.TextureLoader, '../../assets/tiles/wheatTile2.jpg');
       break;
     case 'brick':
-      img = useLoader(THREE.TextureLoader, "");
+      img = useLoader(THREE.TextureLoader, '../../assets/tiles/brickTile.jpg');
       break;
     case 'sheep':
-      img = useLoader(THREE.TextureLoader, "");
+      img = useLoader(THREE.TextureLoader, '../../assets/tiles/sheepTile.jpg');
       break;
     case 'wood':
-      img = useLoader(THREE.TextureLoader, '../../assets/tiles/treeTile.jpg');
+      img = useLoader(THREE.TextureLoader, '../../assets/tiles/woodTile.jpg');
       break;
     default:
       img = useLoader(THREE.TextureLoader, '../../assets/tiles/desertTile2.jpg');
@@ -56,35 +56,37 @@ function Line({gameBoard}) {
   let board = gameBoard;
   let tileArray = [];
   Object.keys(board).map(key => {
-    if(board[key] && board[key].type === 'tile') {
+    if(board[key] && board[key].type === 'point') {
       key.split(',').forEach((string) => {
         tileArray.push(parseInt(string))
       });
     }
   });
   let i = 0;
+  while(i < tileArray.length) {
+    let x = tileArray[i];
+    tileArray[i] = (tileArray[i+2] * (Math.sqrt(3)/2))*10;
+    tileArray[i+1] = ((x + tileArray[i+1]) / 2) *10;
+    tileArray[i+2] = .009;
+    i+=3;
+  }
+  i = 1;
   var vertices = [];
-  while(i < 19) {
+  console.log(tileArray)
+  for(i; i<tileArray.length; i++) {
     var points = [];
-    points.push(new THREE.Vector3(tileArray[i*3], tileArray[(i*3)+1] + 1, tileArray[(i*3)+2] - 1)); //Top Left
-    points.push(new THREE.Vector3(tileArray[i*3]+1, tileArray[(i*3)+1]+1, tileArray[(i*3)+2])); // Top Right
-    points.push(new THREE.Vector3(tileArray[i*3]+1, tileArray[(i*3)+1], tileArray[(i*3)+2]+1)); // Right
-    points.push(new THREE.Vector3(tileArray[i*3], tileArray[(i*3)+1]-1, tileArray[(i*3)+2]+1)); // Bottom Right
-    points.push(new THREE.Vector3(tileArray[i*3]-1, tileArray[(i*3)+1]-1, tileArray[(i*3)+2])); // Bottom Left
-    points.push(new THREE.Vector3(tileArray[i*3]-1, tileArray[(i*3)+1], tileArray[(i*3)+2]-1)); // Left
-    points.push(new THREE.Vector3(tileArray[i*3], tileArray[(i*3)+1]+1, tileArray[(i*3)+2]-1)); // Top Left /To close hexagon
-    ++i;
+    points.push(new THREE.Vector3(tileArray[(i-1)*3], tileArray[((i-1)*3)+1], tileArray[((i-1)*3)+2])); // Top Right
+    points.push(new THREE.Vector3(tileArray[i*3], tileArray[(i*3)+1], tileArray[(i*3)+2])); //Top Left
     vertices.push(points);
   }
-  const update = useCallback((self) => ((self.verticesNeedUpdate = true), self.computeBoundingSphere()), [])
   return (
     <>
       {
         vertices.map((vertex, index) => (
-          <line key={index}>
-            <geometry attach="geometry" vertices={vertex} onUpdate={update} />
-            <lineBasicMaterial attach="material" color="white" linecap='round' linejoin='round' />
-          </line>
+          <MeshLine key={index} >
+            <geometry attach="geometry" vertices={vertex} />
+            <MeshLineMaterial attach="material" linewidth={10} color="white" linecap='round' linejoin='round' />
+          </MeshLine>
           )
         )
       }
@@ -108,10 +110,10 @@ function Point({gameBoard}) {
     let x = tileArray[i];
     tileArray[i] = (tileArray[i+2] * (Math.sqrt(3)/2))*10;
     tileArray[i+1] = ((x + tileArray[i+1]) / 2) *10;
-    tileArray[i+2] = .1;
-    color.push(0);
+    tileArray[i+2] = .01;
     color.push(0);
     color.push(10);
+    color.push(0);
     i+=3;
   }
   var positions = new Float32Array(tileArray);
@@ -120,15 +122,15 @@ function Point({gameBoard}) {
   const hover = useCallback(e => {
     e.stopPropagation()
     attrib.current.array[e.index * 3] = 0
-    attrib.current.array[e.index * 3 + 1] = 10
-    attrib.current.array[e.index * 3 + 2] = 0
+    attrib.current.array[e.index * 3 + 1] = 0
+    attrib.current.array[e.index * 3 + 2] = 10
     attrib.current.needsUpdate = true
   }, [])
 
   const unhover = useCallback(e => {
     attrib.current.array[e.index * 3] = 0
-    attrib.current.array[e.index * 3 + 1] = 0
-    attrib.current.array[e.index * 3 + 2] = 10
+    attrib.current.array[e.index * 3 + 1] = 10
+    attrib.current.array[e.index * 3 + 2] = 0
     attrib.current.needsUpdate = true
   }, [])
   return (
@@ -187,7 +189,7 @@ function BoardRender({gameBoard, tokens, tiles}) {
       return(
         <Suspense fallback={null}>
           <Hex position={pos} key={index} tile={tiles[tilePositions[index]]} />
-          <NumberTile position={pos} number={assign[pos]} key={index} />
+          {/* <NumberTile position={pos} number={assign[pos]} key={index} /> */}
         </Suspense>
       )
     })
@@ -216,14 +218,16 @@ class GameView extends Component {
   render() {
     return (
       <Canvas
-      camera={{ orthographic: true, position: [0, 0, 70]}}
-      style={{width: window.innerWidth, height: window.innerHeight}}
+      camera={{ position: [0, 0, 70], fov: 70}}
+      style={{width: window.innerWidth/2, height: window.innerHeight}}
       pixelRatio={window.pixelRatio}
+      id="canvas"
       >
         <axesHelper args={10} />
         <Suspense fallback={null}>
           <BoardRender gameBoard={this.props.gameState.gameGrid} tokens={this.props.gameState.numberTokenAssignments} tiles={this.props.gameState.tileAssignments} />
           <Point gameBoard={this.props.gameState.gameGrid} />
+          {/* <Line gameBoard={this.props.gameState.gameGrid} /> */}
         </Suspense>
       </Canvas>
     );
