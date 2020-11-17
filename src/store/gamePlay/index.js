@@ -36,7 +36,7 @@ export default (state = initialState, action) => {
   switch (action.type) {
     case 'initializeGame': {
       const gameGrid = generateGameGrid();
-      const { tileAssignments, numberTokenAssignments } = assignTilesAndNumberTokensToNewBoard(gameGrid);
+      const { tileAssignments, numberTokenAssignments } = assignTypesAndNumberTokensToTiles(gameGrid);
       const robberLocation = Object.keys(tileAssignments).find((key) => tileAssignments[key] === 'desert');
       const resourceCards = getResourceCards(action.data.gameType);
       const developmentCards = getDevCards(action.data.gameType);
@@ -236,60 +236,57 @@ function generateGameGrid() {
   return board;
 }
 
-function assignTilesAndNumberTokensToNewBoard(gameBoard) {
-  const tileCoordinates = Object.keys(gameBoard).filter((coordinate) => gameBoard[coordinate] && coordinate !== '0,0,0' && gameBoard[coordinate].type === 'tile');
-  let tileAssignmentCount = 0;
-  const totalTilesToBeAssignedCount = Object.values(TILES).reduce((acc, cur) => acc + cur, 0);
-  const tilesToBeAssigned = { ...TILES };
+function assignTypesAndNumberTokensToTiles(gameBoard) {
+  const tileCoordinates = Object.keys(gameBoard).filter((coordinate) => gameBoard[coordinate] && gameBoard[coordinate].type === 'tile');
+  const typesToBeAssigned = { ...TILES };
+  const traditionalNumberAssignment = [...TRADITIONAL_NUMBER_ASSIGNMENT];
   const tileAssignments = {};
 
-  const numberTokensToBeAssigned = { ...NUMBER_TOKENS };
-  const numberTokenAssignments = {};
 
-  while (tileAssignmentCount < totalTilesToBeAssignedCount) {
-    const tileTypes = Object.keys(tilesToBeAssigned).filter((tile) => tilesToBeAssigned[tile] > 0);
+  tileCoordinates.forEach((coordinate) => {
+    const tileTypes = Object.keys(typesToBeAssigned).filter((type) => typesToBeAssigned[type] > 0);
     const typeToAssign = tileTypes[getRandomInt(0, tileTypes.length)];
-    const typeCanBeAssigned = ((tileAssignments[typeToAssign] && tileAssignments[typeToAssign].length) || 0) < TILES[typeToAssign];
 
-    if (typeCanBeAssigned) {
-      if (typeToAssign === 'desert') {
-        const coordinate = '0,0,0';
-        tileAssignments[coordinate] = typeToAssign;
-      } else {
-        const coordinate = tileCoordinates.pop();
-        tileAssignments[coordinate] = typeToAssign;
+    tileAssignments[coordinate] = {
+      type: typeToAssign,
+    };
 
-        const numberTokens = Object.keys(numberTokensToBeAssigned).filter((tile) => numberTokensToBeAssigned[tile] > 0);
-        const numberToken = numberTokens[getRandomInt(0, numberTokens.length)];
-        if (numberTokenAssignments[numberToken]) {
-          numberTokenAssignments[numberToken].push(coordinate);
-        } else {
-          numberTokenAssignments[numberToken] = [coordinate];
-        }
-        numberTokensToBeAssigned[numberToken] -= 1;
-      }
-
-      tilesToBeAssigned[typeToAssign] -= 1;
-      tileAssignmentCount += 1;
+    typesToBeAssigned[typeToAssign] -= 1;
+  });
+  // Handle number assignments
+  // Traditional
+  let desertOffset = 0;
+  traditionalNumberAssignment.forEach((assignment, index) => {
+    if (tileAssignments[assignment.coordinate].type === 'desert') {
+      desertOffset = 1;
+      return;
     }
-  }
+    tileAssignments[assignment.coordinate].numberToken = traditionalNumberAssignment[index - desertOffset].number;
+  });
 
-  return { tileAssignments, numberTokenAssignments };
+  // TODO: Random assignment option (use _getCoordinatesNDistanceAway)
+  // const numberTokensToBeAssigned = { ...NUMBER_TOKENS };
+  // const numberTokens = Object.keys(numberTokensToBeAssigned).filter((tile) => numberTokensToBeAssigned[tile] > 0);
+  // const numberToken = numberTokens[getRandomInt(0, numberTokens.length)];
+  // tileAssignments[coordinate].numberToken = numberToken;
+  // numberTokensToBeAssigned[numberToken] -= 1;
+
+  return { tileAssignments };
 }
 
-function _getCoordinatesOneDistanceAway(coordinate) {
+function _getCoordinatesNDistanceAway(coordinate, n) {
   const coordinates = [];
   const [x, y, z] = coordinate.split(',');
-  [-1, 1].forEach((adjustment) => {
+  for (let adjustment = -n; adjustment <= n; adjustment += 1) {
     coordinates.push(`${x},${y + adjustment},${z - adjustment}`);
     coordinates.push(`${x + adjustment},${y},${z + adjustment}`);
     coordinates.push(`${x + adjustment},${y + adjustment},${z}`);
-  });
+  }
   return coordinates;
 }
 
 function _calculateManhattanDistance(origin, point) {
-  return (Math.abs(origin.x - point.x) + Math.abs(origin.y - point.y) + Math.abs(origin.z - point.z)) / 2 
+  return (Math.abs(origin.x - point.x) + Math.abs(origin.y - point.y) + Math.abs(origin.z - point.z)) / 2;
 }
 
 function getResourceCards(gameType) {
@@ -328,6 +325,28 @@ const TILES = {
   sheep: 4,
   desert: 1,
 };
+
+const TRADITIONAL_NUMBER_ASSIGNMENT = [
+  { coordinate: '2,4,-2', number: 5 },
+  { coordinate: '0,3,-3', number: 2 },
+  { coordinate: '-2,2,-4', number: 6 },
+  { coordinate: '-3,0,-3', number: 3 },
+  { coordinate: '-4,-2,-2', number: 8 },
+  { coordinate: '-3,-3,0', number: 10 },
+  { coordinate: '-2,-4,2', number: 9 },
+  { coordinate: '0,-3,3', number: 12 },
+  { coordinate: '2,-2,4', number: 11 },
+  { coordinate: '3,0,3', number: 4 },
+  { coordinate: '4,2,2', number: 8 },
+  { coordinate: '3,3,0', number: 10 },
+  { coordinate: '1,2,-1', number: 9 },
+  { coordinate: '-1,1,-2', number: 4 },
+  { coordinate: '-2,-1,-1', number: 5 },
+  { coordinate: '-1,-2,1', number: 6 },
+  { coordinate: '1,-1,2', number: 3 },
+  { coordinate: '2,1,1', number: 11 },
+  { coordinate: '0,0,0', number: null },
+];
 
 const NUMBER_TOKENS = {
   2: 1,
