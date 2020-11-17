@@ -4,7 +4,9 @@ import {connect} from 'react-redux';
 import './index.css';
 
 const mapStateToProps = (state, props) => {
-  return {};
+  return {
+    state,
+  };
 };
 
 const mapDispatchToProps = (dispatch, props) => {
@@ -20,6 +22,7 @@ class Dev extends Component {
   }
 
   render() {
+    console.log(this.props.state);
     return (
       <div className="home-container">
         <img className="logo" src="https://i.imgur.com/qAK9gXT.png" alt="" />

@@ -1,7 +1,6 @@
 const initialState = {
   gameGrid: {},
   tileAssignments: {},
-  numberTokenAssignments: {},
 };
 
 const initialPlayerState = {
@@ -36,7 +35,7 @@ export default (state = initialState, action) => {
   switch (action.type) {
     case 'initializeGame': {
       const gameGrid = generateGameGrid();
-      const { tileAssignments, numberTokenAssignments } = assignTypesAndNumberTokensToTiles(gameGrid);
+      const tileAssignments = assignTypesAndNumberTokensToTiles(gameGrid);
       const robberLocation = Object.keys(tileAssignments).find((key) => tileAssignments[key] === 'desert');
       const resourceCards = getResourceCards(action.data.gameType);
       const developmentCards = getDevCards(action.data.gameType);
@@ -45,7 +44,6 @@ export default (state = initialState, action) => {
         ...state,
         gameGrid,
         tileAssignments,
-        numberTokenAssignments,
         gameType: action.data.gameType,
         robberLocation,
         buildings: {},
@@ -107,29 +105,38 @@ export default (state = initialState, action) => {
 
       return { ...state, ...stateDiff };
     }
-    // case 'payResourcesAfterRoll': {
-    //   const stateDiff = { ...state };
+    case 'payResourcesAfterRoll': {
+      const stateDiff = { ...state };
+      stateDiff.resourceCards = { ...state.resourceCards };
+      stateDiff.players = { ...state.players };
+      Object.keys(stateDiff.players).forEach((player) => {
+        stateDiff.players[player] = { ...state.players[player] };
+        stateDiff.players[player].resources = { ...state.players[player].resources };
+      });
 
-    //   let tilesToPayOut = state.numberTokenAssignments[action.data.numberRolled];
-    //   tilesToPayOut = tilesToPayOut.filter((coordinate) => coordinate !== state.robberLocation);
-    //   const coordinatesToPayOut = tilesToPayOut.reduce((acc, tile) => {
-    //     const coordinatesForTile = _getCoordinatesOneDistanceAway(tile);
-    //     acc.push(...coordinatesForTile.map((coordinate) => ({ coordinate, tile })));
-    //     return acc;
-    //   }, []);
+      let tilesToPayOut = Object.keys(state.tileAssignments).filter((tile) => tile.numberToken && tile.numberToken === action.data.numberRolled);
+      tilesToPayOut = tilesToPayOut.filter((coordinate) => coordinate !== state.robberLocation);
+      const coordinatesToPayOut = tilesToPayOut.reduce((acc, tile) => {
+        const coordinatesForTile = _getCoordinatesOneDistanceAway(tile);
+        acc.push(...coordinatesForTile.map((coordinate) => ({ coordinate, tile })));
+        return acc;
+      }, []);
 
-    //   coordinatesToPayOut.forEach((coordinate) => {
-    //     const hasBuilding = state.buildings[coordinate.coordinate];
-    //     if (!hasBuilding) return;
-    //     const resource = state.tileAssignments[coordinate.tile];
-    //     const player = hasBuilding.player;
-    //     const count = hasBuilding.type === 'city' ? 2 : 1;
-    //   });
+      coordinatesToPayOut.forEach((coordinate) => {
+        const hasBuilding = state.buildings[coordinate.coordinate];
+        if (!hasBuilding) return;
+        const count = hasBuilding.type === 'city' ? 2 : 1;
+        const resource = state.tileAssignments[coordinate.tile].type;
 
-    //   stateDiff.robberLocation = action.data.robberLocation;
+        // TODO: Handle running out of cards
+        stateDiff.players[hasBuilding.player].resources[resource] += count;
+        stateDiff.resourceCards[resource] -= count;
+      });
 
-    //   return { ...state, ...stateDiff };
-    // }
+      stateDiff.robberLocation = action.data.robberLocation;
+
+      return { ...state, ...stateDiff };
+    }
     // case 'buildRoad': {
     //   const stateDiff = { ...state };
 
@@ -271,13 +278,23 @@ function assignTypesAndNumberTokensToTiles(gameBoard) {
   // tileAssignments[coordinate].numberToken = numberToken;
   // numberTokensToBeAssigned[numberToken] -= 1;
 
-  return { tileAssignments };
+  return tileAssignments;
 }
 
-function _getCoordinatesNDistanceAway(coordinate, n) {
+// function _getCoordinatesNDistanceAway(coordinate, n) {
+//   const coordinates = [];
+//   const [x, y, z] = coordinate.split(',');
+//   for (let adjustment = -n; adjustment <= n; adjustment += 1) {
+//     coordinates.push(`${x},${y + adjustment},${z - adjustment}`);
+//     coordinates.push(`${x + adjustment},${y},${z + adjustment}`);
+//     coordinates.push(`${x + adjustment},${y + adjustment},${z}`);
+//   }
+//   return coordinates;
+// }
+function _getCoordinatesOneDistanceAway(coordinate) {
   const coordinates = [];
   const [x, y, z] = coordinate.split(',');
-  for (let adjustment = -n; adjustment <= n; adjustment += 1) {
+  for (let adjustment = -1; adjustment <= 1; adjustment += 1) {
     coordinates.push(`${x},${y + adjustment},${z - adjustment}`);
     coordinates.push(`${x + adjustment},${y},${z + adjustment}`);
     coordinates.push(`${x + adjustment},${y + adjustment},${z}`);
