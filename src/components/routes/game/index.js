@@ -23,6 +23,7 @@ class Game extends Component {
 }
 
   render() {
+    console.log(this.props.state);
     return (
       <div className="home-container">
         <div style={{ width: '100%' }}>
