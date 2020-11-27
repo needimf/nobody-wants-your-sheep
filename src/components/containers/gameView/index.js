@@ -189,7 +189,7 @@ function BoardRender({gameBoard, tokens, tiles}) {
       return(
         <Suspense fallback={null}>
           <Hex position={pos} key={index} tile={tiles[tilePositions[index]]} />
-          {/* <NumberTile position={pos} number={assign[pos]} key={index} /> */}
+          <NumberTile position={pos} number={assign[pos]} key={index} />
         </Suspense>
       )
     })
