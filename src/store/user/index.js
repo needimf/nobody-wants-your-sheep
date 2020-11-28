@@ -33,18 +33,26 @@ export const reducer = combineReducers({
 });
 export default reducer;
 
-export const sync = () => async (dispatch, getState) => {
-  const userId = firebase.auth().currentUser.uid;
-  const path = `users/${userId}`;
-  firebase.database().ref(path).on('value', (snapshot) => {
-    dispatch({ type: actionTypes.fetchSuccess, data: snapshot.val(), paths: { [path]: true } });
-  });
-};
+export function sync() {
+  return async (dispatch, getState) => {
+    const userId = firebase.auth().currentUser.uid;
+    const path = `users/${userId}`;
+    firebase.database().ref(path).on('value', (snapshot) => {
+      dispatch({ type: actionTypes.fetchSuccess, data: snapshot.val(), paths: { [path]: true } });
+    });
+  };
+}
 
-export const clear = () => async (dispatch, getState) => {
-  const { paths } = getState().user.data;
-  Object.keys(paths).forEach((path) => {
-    firebase.database().ref(path).off();
-  });
-  dispatch({ type: actionTypes.clear });
-};
+export function clear() {
+  return async (dispatch, getState) => {
+    const { paths } = getState().user.data;
+    Object.keys(paths).forEach((path) => {
+      firebase.database().ref(path).off();
+    });
+    dispatch({ type: actionTypes.clear });
+  };
+}
+
+export function logout() {
+  return async (dispatch, getState) => firebase.auth().signOut();
+}
