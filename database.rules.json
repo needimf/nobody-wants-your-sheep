@@ -1,6 +1,31 @@
 {
   "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null"
+    ".read": false,
+    ".write": false,
+    "users": {
+      "$userId": {
+        ".read": "$userId === auth.uid",
+        ".write": "$userId === auth.uid"
+      }
+    },
+    "games": {
+      "$gameId": {
+        "state": {
+          ".read": "auth.uid != null",
+          ".write": "root.child('users').child(auth.uid).child('games').child($gameId).val() != null",
+          "users": {
+            "$userId": {
+              ".write": "$userId === auth.uid"
+            }
+          }
+        },
+        "privatePlayerState": {
+          "$userId": {
+            ".read": "$userId === auth.uid",
+            ".write": "$userId === auth.uid"
+          }
+        }
+      }
+    }
   }
 }

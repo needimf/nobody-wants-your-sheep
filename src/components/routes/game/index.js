@@ -22,7 +22,6 @@ class Dev extends Component {
   }
 
   render() {
-    console.log(this.props.state);
     return (
       <div className="home-container">
         <img className="logo" src="https://i.imgur.com/qAK9gXT.png" alt="" />
