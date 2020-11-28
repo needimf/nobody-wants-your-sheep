@@ -37,7 +37,7 @@ export const sync = () => async (dispatch, getState) => {
   const userId = firebase.auth().currentUser.uid;
   const path = `users/${userId}`;
   firebase.database().ref(path).on('value', (snapshot) => {
-    dispaImptch({ type: actionTypes.fetchSuccess, data: snapshot.val(), paths: { [path]: true } });
+    dispatch({ type: actionTypes.fetchSuccess, data: snapshot.val(), paths: { [path]: true } });
   });
 };
 

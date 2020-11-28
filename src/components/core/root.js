@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { sync } from '../../store/user';
+import { sync, clear } from '../../store/user';
 
 import routes from '../routes';
 
@@ -15,13 +15,19 @@ const mapDispatchToProps = (dispatch, props) => {
     syncUser: () => {
       return dispatch(sync());
     },
+    clearUser: () => {
+      return dispatch(clear());
+    },
   })
 }
 
 class Root extends Component {
   constructor(props) {
     super (props);
-    this.state = { loggedIn: false };
+    this.state = {
+      loggedIn: false,
+      fetchedLoginStatus: false,
+    };
   }
 
   componentDidMount() {
@@ -29,16 +35,20 @@ class Root extends Component {
       if (user) {
         // User is signed in.
         this.props.syncUser();
-        this.setState({ loggedIn: true });
+        this.setState({ loggedIn: true, fetchedLoginStatus: true });
       } else {
         // No user is signed in.
-        this.setState({ loggedIn: false });
+        this.props.clearUser();
+        this.setState({ loggedIn: false, fetchedLoginStatus: true });
       }
     });
   }
 
   render() {
-    if (!this.state.loggedIn && this.props.route !== 'home' && this.props.route !== 'login' && this.props.route !== 'notFound') return <routes.login />;
+    if (this.props.route !== 'home' && this.props.route !== 'login' && this.props.route !== 'notFound') {
+      if (!this.state.fetchedLoginStatus) return <div style={{color: "white"}}>Loading</div>;
+      if (!this.state.loggedIn) return <routes.login />;
+    }
     const Component = routes[this.props.route];
     return <Component />;
   }
