@@ -11,7 +11,7 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = (dispatch, props) => {
   return ({
-    initializeGame: () => dispatch({ type: 'initializeGame' }),
+    initializeGame: () => dispatch({ type: 'initializeGame', data: { gameType: 'classic' } }),
   })
 }
     
@@ -22,7 +22,6 @@ class Home extends Component {
   }
 
   render() {
-    console.log(this.props.state);
     return (
       <div className="home-container">
         <img className="logo" src="https://i.imgur.com/qAK9gXT.png" alt="" />
