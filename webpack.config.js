@@ -45,23 +45,25 @@ module.exports = {
       filename: './index.html',
     }),
     new Dotenv(),
-    new CopyPlugin([
-      {
-        from: './src/assets/icons/favicon/apple-touch-icon.png',
-        to: './assets/icons/favicon/apple-touch-icon.png',
-      },
-      {
-        from: './src/assets/icons/favicon/favicon-32x32.png',
-        to: './assets/icons/favicon/favicon-32x32.png',
-      },
-      {
-        from: './src/assets/icons/favicon/favicon-16x16.png',
-        to: './assets/icons/favicon/favicon-16x16.png',
-      },
-      {
-        from: './src/assets/icons/favicon/site.webmanifest',
-        to: './assets/icons/favicon/site.webmanifest',
-      },
-    ]),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: './src/assets/icons/favicon/apple-touch-icon.png',
+          to: './assets/icons/favicon/apple-touch-icon.png',
+        },
+        {
+          from: './src/assets/icons/favicon/favicon-32x32.png',
+          to: './assets/icons/favicon/favicon-32x32.png',
+        },
+        {
+          from: './src/assets/icons/favicon/favicon-16x16.png',
+          to: './assets/icons/favicon/favicon-16x16.png',
+        },
+        {
+          from: './src/assets/icons/favicon/site.webmanifest',
+          to: './assets/icons/favicon/site.webmanifest',
+        },
+      ],
+    }),
   ],
 };
