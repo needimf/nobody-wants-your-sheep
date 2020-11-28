@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { sync, clear } from '../../store/user';
+import User from '../../store/user';
 
 import routes from '../routes';
 
@@ -13,10 +13,16 @@ const mapStateToProps = (state, props) => {
 const mapDispatchToProps = (dispatch, props) => {
   return ({
     syncUser: () => {
-      return dispatch(sync());
+      return dispatch(User.sync());
     },
     clearUser: () => {
-      return dispatch(clear());
+      return dispatch(User.clear());
+    },
+    syncUserMetadata: () => {
+      return dispatch(User.syncMetadata());
+    },
+    clearUserMetadata: () => {
+      return dispatch(User.clearMetadata());
     },
   })
 }
@@ -35,10 +41,12 @@ class Root extends Component {
       if (user) {
         // User is signed in.
         this.props.syncUser();
+        this.props.syncUserMetadata();
         this.setState({ loggedIn: true, fetchedLoginStatus: true });
       } else {
         // No user is signed in.
         this.props.clearUser();
+        this.props.clearUserMetadata();
         this.setState({ loggedIn: false, fetchedLoginStatus: true });
       }
     });

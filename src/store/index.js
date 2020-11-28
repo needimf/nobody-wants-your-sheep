@@ -7,5 +7,5 @@ export default {
   page: router,
   test,
   gamePlay,
-  user,
+  user: user.reducer,
 };
