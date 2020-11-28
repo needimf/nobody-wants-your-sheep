@@ -1,15 +1,48 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import { sync } from '../../store/user';
 
 import routes from '../routes';
 
-const App = ({ page }) => {
-  console.log('page', page);
-  const Component = routes[page];
-  return <Component />;
+const mapStateToProps = (state, props) => {
+  return {
+    route: state.page,
+  };
+};
+
+const mapDispatchToProps = (dispatch, props) => {
+  return ({
+    syncUser: () => {
+      return dispatch(sync());
+    },
+  })
+}
+
+class Root extends Component {
+  constructor(props) {
+    super (props);
+    this.state = { loggedIn: false };
+  }
+
+  componentDidMount() {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        // User is signed in.
+        this.props.syncUser();
+        this.setState({ loggedIn: true });
+      } else {
+        // No user is signed in.
+        this.setState({ loggedIn: false });
+      }
+    });
+  }
+
+  render() {
+    if (!this.state.loggedIn && this.props.route !== 'home' && this.props.route !== 'login' && this.props.route !== 'notFound') return <routes.login />;
+    const Component = routes[this.props.route];
+    return <Component />;
+  }
 }
  
-const mapStateToProps = ({ page }) => ({ page })
- 
-export default connect(mapStateToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(Root);
 
