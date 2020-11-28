@@ -6,8 +6,16 @@ button {
   margin: 0px auto auto 4px;
 }
 
+li {
+  color: white;
+}
+
 button:hover {
   background-color: white;
+}
+
+button:focus {
+  outline: none;
 }
 
 #logoBrand {

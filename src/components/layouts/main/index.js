@@ -16,6 +16,12 @@ const mapDispatchToProps = (dispatch, props) => {
 }
 
 class MainLayout extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      signedIn: false
+    }
+  }
   render() {
     const navs = [
       { name: '0', label: 'Home', link: "" },
@@ -39,10 +45,17 @@ class MainLayout extends Component {
                 </li>
             </ul>
           </div>
-          <div className="nav navbar-nav navbar-right ">
-            <li><button type="button" onClick={()=>console.log("log in")}>Login</button></li>
-            <li><button type="button" onClick={()=>console.log("log out")}>Logout</button></li>
-          </div>
+            {this.state.signedIn ? 
+              <div className="nav navbar-nav navbar-right ">
+                <li>Hello [Name],</li>
+                <li><button type="button" onClick={()=>{this.setState({signedIn: false})}}>Logout</button></li>
+              </div>
+            :
+              <div className="nav navbar-nav navbar-right ">
+                <li>Hello please</li>
+                <li><button type="button" onClick={()=>{this.setState({signedIn: true})}}>Login</button></li>
+              </div>
+            }
         </div>
       </nav>
     );
