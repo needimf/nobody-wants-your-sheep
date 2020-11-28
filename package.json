@@ -4,7 +4,7 @@
   "description": "",
   "private": true,
   "scripts": {
-    "dev": "concurrently 'webpack --watch --mode development' 'firebase serve --only hosting --port=5005'",
+    "dev": "concurrently 'webpack --watch --mode development' 'firebase serve --only hosting --port=5005' 'firebase deploy --only database'",
     "build": "webpack --mode production"
   },
   "keywords": [],
