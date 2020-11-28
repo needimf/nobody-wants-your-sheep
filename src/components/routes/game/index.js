@@ -12,7 +12,7 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = (dispatch, props) => {
   return ({
-    initializeGame: () => dispatch({ type: 'initializeGame' }),
+    initializeGame: () => dispatch({ type: 'initializeGame', data: {gameType: 'classic'} }),
   })
 }
     

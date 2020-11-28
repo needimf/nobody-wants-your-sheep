@@ -147,7 +147,7 @@ function Point({gameBoard}) {
   )
 }
 
-function BoardRender({gameBoard, tokens, tiles}) {
+function BoardRender({gameBoard, tileData}) {
   let board = gameBoard;
   let tileArray = [];
   let tilePositions = [];
@@ -170,26 +170,13 @@ function BoardRender({gameBoard, tokens, tiles}) {
       tileArray.push(tilePos);
     }
   });
-
-  var assign = {
-    "0,-3,3": 2,
-    "-2,2,-4": 3, "2,1,1": 3,
-    "2,4,-2": 4, "3,0,3": 4,
-    "-4,-2,-2": 5, "3,3,0": 5,
-    "0,3,-3": 6, "-3,0,-3": 6,
-    "-3,-3,0": 8, "-2,-1,-1": 8,
-    "-1,1,-2": 9, "-1,-2,1": 9,
-    "1,2,-1": 10, "1,-1,2": 10,
-    "2,-2,4": 11, "-2,-4,2": 11,
-    "4,2,2": 12
-  }
   return (
     // Map through array and render a Hex piece on each tile position, with associated tile type
     tileArray.map((pos, index) => {
       return(
         <Suspense fallback={null}>
-          <Hex position={pos} key={index} tile={tiles[tilePositions[index]]} />
-          <NumberTile position={pos} number={assign[pos]} key={index} />
+          <Hex position={pos} key={index} tile={tileData[tilePositions[index]].type} />
+          <NumberTile position={pos} number={tileData[tilePositions[index]].numberToken} key={index} />
         </Suspense>
       )
     })
@@ -199,16 +186,16 @@ function BoardRender({gameBoard, tokens, tiles}) {
 function NumberTile({position, number}) {
   var loader = new THREE.FontLoader();
   var font = loader.parse(helvetikerBold);
-  const config = useMemo(() => ({font, size: 8, height: 1, curveSegments: 20}),
+  const config = useMemo(() => ({font, size: 6, height: 1, curveSegments: 20}),
   [font]);
   if(number===undefined) {
-    var number = '|';
+    number = '';
   }
 
   return (
-    <mesh position={[position[0]-4,position[1], position[2]]}>
-      <textGeometry attach="geometry" center={true} args={[number, config]} />
-      <meshBasicMaterial attach="material" color='white' />
+    <mesh position={[position[0]-3,position[1]-4, position[2]]}>
+      <textGeometry attach="geometry" center={true} args={[number.toString(), config]} />
+      <meshBasicMaterial attach="material" color='black' />
     </mesh>
   )
 
@@ -216,6 +203,7 @@ function NumberTile({position, number}) {
     
 class GameView extends Component {
   render() {
+    console.log(this.props.gameState);
     return (
       <Canvas
       camera={{ position: [0, 0, 70], fov: 70}}
@@ -225,7 +213,7 @@ class GameView extends Component {
       >
         <axesHelper args={10} />
         <Suspense fallback={null}>
-          <BoardRender gameBoard={this.props.gameState.gameGrid} tokens={this.props.gameState.numberTokenAssignments} tiles={this.props.gameState.tileAssignments} />
+          <BoardRender gameBoard={this.props.gameState.gameGrid} tileData={this.props.gameState.tileAssignments} />
           <Point gameBoard={this.props.gameState.gameGrid} />
           {/* <Line gameBoard={this.props.gameState.gameGrid} /> */}
         </Suspense>

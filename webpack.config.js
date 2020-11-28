@@ -62,6 +62,30 @@ module.exports = {
         from: './src/assets/icons/favicon/site.webmanifest',
         to: './assets/icons/favicon/site.webmanifest',
       },
+      {
+        from: './src/assets/tiles/stoneTile.jpg',
+        to: './assets/tiles/stoneTile.jpg',
+      },
+      {
+        from: './src/assets/tiles/sheepTile.jpg',
+        to: './assets/tiles/sheepTile.jpg',
+      },
+      {
+        from: './src/assets/tiles/brickTile.jpg',
+        to: './assets/tiles/brickTile.jpg',
+      },
+      {
+        from: './src/assets/tiles/desertTile2.jpg',
+        to: './assets/tiles/desertTile2.jpg',
+      },
+      {
+        from: './src/assets/tiles/woodTile.jpg',
+        to: './assets/tiles/woodTile.jpg',
+      },
+      {
+        from: './src/assets/tiles/wheatTile2.jpg',
+        to: './assets/tiles/wheatTile2.jpg',
+      },
     ]),
   ],
 };
