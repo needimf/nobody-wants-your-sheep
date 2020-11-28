@@ -171,7 +171,7 @@ export default (state = initialState, action) => {
 // };
 
 export const initializeGame = () => (dispatch) => {
-  dispatch({ type: 'initializeGame' });
+  dispatch({ type: 'initializeGame', data: {gameType: 'classic'} });
 };
 
 // internal functions
