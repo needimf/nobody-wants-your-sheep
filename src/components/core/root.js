@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import { sync } from '../../store/user';
 
 import routes from '../routes';
 
@@ -8,6 +9,14 @@ const mapStateToProps = (state, props) => {
     route: state.page,
   };
 };
+
+const mapDispatchToProps = (dispatch, props) => {
+  return ({
+    syncUser: () => {
+      return dispatch(sync());
+    },
+  })
+}
 
 class Root extends Component {
   constructor(props) {
@@ -19,6 +28,7 @@ class Root extends Component {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         // User is signed in.
+        this.props.syncUser();
         this.setState({ loggedIn: true });
       } else {
         // No user is signed in.
@@ -34,5 +44,5 @@ class Root extends Component {
   }
 }
  
-export default connect(mapStateToProps)(Root);
+export default connect(mapStateToProps, mapDispatchToProps)(Root);
 
