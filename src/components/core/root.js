@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import User from '../../store/user';
+import MainLayout from '../../components/layouts/main/index.js'
+import GameLayout from '../../components/layouts/game/index.js'
 
 import routes from '../routes';
 
@@ -58,7 +60,17 @@ class Root extends Component {
       if (!this.state.loggedIn) return <routes.login />;
     }
     const Component = routes[this.props.route];
-    return <Component />;
+    if(this.props.route === 'login') {
+      return <Component />
+    }
+    if(this.props.route === 'game') {
+      return <MainLayout loggedIn={this.state.loggedIn} game='true'>
+                <Component />
+            </MainLayout>
+    }
+    return <MainLayout loggedIn={this.state.loggedIn} game='false'>
+            <Component />
+          </MainLayout>
   }
 }
  

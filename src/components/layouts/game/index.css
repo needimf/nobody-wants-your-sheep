@@ -1,0 +1,23 @@
+#gameSidebar {
+  color: white;
+  width: 30%;
+  height: 100%;
+  position: absolute;
+  top: 66px;
+  right: 0px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.playerBar {
+  justify-content: space-between;
+}
+
+em {
+  color: orange;
+  font-size: larger;
+  margin: auto auto;
+}
+
