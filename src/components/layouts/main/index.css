@@ -7,6 +7,10 @@ button {
   padding-bottom: 4px;
 }
 
+.navbar-nav {
+  flex-direction: row;
+}
+
 li {
   color: white;
 }

@@ -11,16 +11,10 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = (dispatch, props) => {
   return ({
-    initializeGame: () => dispatch({ type: 'initializeGame', data: {gameType: "classic"} }),
   })
 }
     
 class Dev extends Component {
-
-  componentDidMount() {
-    this.props.initializeGame();
-  }
-
   render() {
     return (
       <div className="home-container">

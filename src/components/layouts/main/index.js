@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import {connect} from 'react-redux';
 import Link from 'redux-first-router-link';
 
-import GameLayout from '../game/index.js'
 import User from '../../../store/user/index.js'
 
 import './index.css';
@@ -23,18 +22,13 @@ const mapDispatchToProps = (dispatch, props) => {
 
 class MainLayout extends Component {
   render() {
-    console.log(this.props)
     return (
       <React.Fragment>
       <nav className="navbar navbar-expand-lg navbar-dark">
         <div className="container">
           <div className="navbar-header">
             <a className="navbar-brand" href=""><img id="logoBrand" src="https://i.imgur.com/qAK9gXT.png" alt="" /></a>
-            <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-              <span className="navbar-toggler-icon"></span>
-            </button>
           </div>
-          <div className="collapse navbar-collapse" id="navbarSupportedContent">
             <ul className="navbar-nav">
                 <li className="nav-item" id='links'>
                   <Link className='linkText' to={{ type: 'DEV', payload: { }}}>DEV</Link>
@@ -43,7 +37,6 @@ class MainLayout extends Component {
                   <Link className='linkText' to={{type: 'HOME', payload: { }}}>HOME</Link>
                 </li>
             </ul>
-          </div>
             {this.props.loggedIn ? 
               <div className="nav navbar-nav navbar-right ">
                 <li>Hello {this.props.state.user.metadata.data.item['name']},</li>
@@ -57,7 +50,6 @@ class MainLayout extends Component {
             }
         </div>
       </nav>
-      {this.props.game ? <GameLayout /> : null}
       {this.props.children}
       </React.Fragment>
     );

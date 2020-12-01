@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import User from '../../store/user';
 import MainLayout from '../../components/layouts/main/index.js'
 import GameLayout from '../../components/layouts/game/index.js'
+import LobbyLayout from '../../components/layouts/lobby/index.js'
 
 import routes from '../routes';
 
@@ -35,7 +36,13 @@ class Root extends Component {
     this.state = {
       loggedIn: false,
       fetchedLoginStatus: false,
+      playerSelected: false,
     };
+    this.colorSelected = this.colorSelected.bind(this);
+  }
+
+  colorSelected(color) {
+    this.setState({playerSelected: true, color: color});
   }
 
   componentDidMount() {
@@ -55,6 +62,7 @@ class Root extends Component {
   }
 
   render() {
+    console.log(this.state)
     if (this.props.route !== 'home' && this.props.route !== 'login' && this.props.route !== 'notFound') {
       if (!this.state.fetchedLoginStatus) return <div style={{color: "white"}}>Loading</div>;
       if (!this.state.loggedIn) return <routes.login />;
@@ -64,11 +72,18 @@ class Root extends Component {
       return <Component />
     }
     if(this.props.route === 'game') {
-      return <MainLayout loggedIn={this.state.loggedIn} game='true'>
+      if(this.state.playerSelected) {
+        return <MainLayout loggedIn={this.state.loggedIn}>
+                <GameLayout color={this.state.color} />
+                <Component />
+              </MainLayout>
+      }
+      return <MainLayout loggedIn={this.state.loggedIn}>
+                <LobbyLayout select={this.colorSelected} />
                 <Component />
             </MainLayout>
     }
-    return <MainLayout loggedIn={this.state.loggedIn} game='false'>
+    return <MainLayout loggedIn={this.state.loggedIn}>
             <Component />
           </MainLayout>
   }
