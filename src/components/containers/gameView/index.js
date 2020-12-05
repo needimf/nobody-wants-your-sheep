@@ -1,10 +1,11 @@
-import React, {Component, Suspense, useCallback, useState, useRef, useMemo} from 'react';
-import {connect} from 'react-redux';
+import React, { Component, Suspense, useState, useRef} from 'react';
+import { connect } from 'react-redux';
 import * as THREE from 'three';
 import { Canvas, useLoader, useThree, useFrame } from 'react-three-fiber';
 import helvetikerBold from 'three/examples/fonts/helvetiker_bold.typeface.json';
 
 import './index.css';
+import { LineBasicMaterial } from 'three';
 
 const mapStateToProps = (state, props) => {
   return {
@@ -16,7 +17,7 @@ const mapDispatchToProps = (dispatch, props) => {
   return ({})
 }
 
-function Hex({position, tile}) {
+function Hex({ position, tile }) {
   let img;
   switch (tile) {
     case 'ore':
@@ -39,16 +40,12 @@ function Hex({position, tile}) {
       break;
   }
 
-  const [hover, setHover] = useState(false);
   return (
-    <>
-      <mesh position={position} rotation={[Math.PI/2, 0, 0]} onPointerOver={()=> setHover(true)} onPointerOut={() => setHover(false)}>
-        {/* <arrowHelper></arrowHelper> */}
-        <cylinderBufferGeometry attach="geometry" args={[10,10,.01,6]} />
-        <meshBasicMaterial attach="material" map={img}>
-        </meshBasicMaterial>
-      </mesh>
-    </>
+    <mesh position={position} rotation={[Math.PI / 2, 0, 0]}>
+      <cylinderBufferGeometry attach="geometry" args={[10, 10, .01, 6]} />
+      <meshBasicMaterial attach="material" map={img}>
+      </meshBasicMaterial>
+    </mesh>
   )
 }
 
@@ -72,21 +69,28 @@ function Line({gameBoard}) {
   }
   i = 1;
   var vertices = [];
-  console.log(tileArray)
-  for(i; i<tileArray.length; i++) {
+  for(i; i<tileArray.length/3; i++) {
     var points = [];
     points.push(new THREE.Vector3(tileArray[(i-1)*3], tileArray[((i-1)*3)+1], tileArray[((i-1)*3)+2])); // Top Right
     points.push(new THREE.Vector3(tileArray[i*3], tileArray[(i*3)+1], tileArray[(i*3)+2])); //Top Left
     vertices.push(points);
   }
+  const [hover, setHover] = useState(null);
   return (
     <>
       {
         vertices.map((vertex, index) => (
-          <MeshLine key={index} >
-            <geometry attach="geometry" vertices={vertex} />
-            <MeshLineMaterial attach="material" linewidth={10} color="white" linecap='round' linejoin='round' />
-          </MeshLine>
+          <line 
+            key={index} 
+            onPointerOver={(e) => {setHover(index)}} 
+            onPointerOut={(e) => {setHover(null)}}
+          >
+            <geometry 
+              attach="geometry" 
+              vertices={vertex} 
+            />
+            <lineBasicMaterial attach="material" color={index === hover ? 'green' : 'white'} />
+          </line>
           )
         )
       }
@@ -94,11 +98,11 @@ function Line({gameBoard}) {
   )
 }
 
-function Point({gameBoard}) {
+function Point({ gameBoard }) {
   let board = gameBoard;
   let tileArray = [];
   Object.keys(board).map(key => {
-    if(board[key] && board[key].type === 'point') {
+    if (board[key] && board[key].type === 'point') {
       key.split(',').forEach((string) => {
         tileArray.push(parseInt(string))
       });
@@ -106,55 +110,55 @@ function Point({gameBoard}) {
   });
   let i = 0;
   let color = [];
-  while(i < tileArray.length) {
+  while (i < tileArray.length) {
     let x = tileArray[i];
-    tileArray[i] = (tileArray[i+2] * (Math.sqrt(3)/2))*10;
-    tileArray[i+1] = ((x + tileArray[i+1]) / 2) *10;
-    tileArray[i+2] = .01;
+    tileArray[i] = (tileArray[i + 2] * (Math.sqrt(3) / 2)) * 10;
+    tileArray[i + 1] = ((x + tileArray[i + 1]) / 2) * 10;
+    tileArray[i + 2] = .01;
     color.push(0);
     color.push(10);
     color.push(0);
-    i+=3;
+    i += 3;
   }
   var positions = new Float32Array(tileArray);
   var colors = new Float32Array(color);
   const attrib = useRef();
-  const hover = useCallback(e => {
+  const over = e => {
     e.stopPropagation()
     attrib.current.array[e.index * 3] = 0
     attrib.current.array[e.index * 3 + 1] = 0
     attrib.current.array[e.index * 3 + 2] = 10
     attrib.current.needsUpdate = true
-  }, [])
+  }
 
-  const unhover = useCallback(e => {
+  const out = e => {
     attrib.current.array[e.index * 3] = 0
     attrib.current.array[e.index * 3 + 1] = 10
     attrib.current.array[e.index * 3 + 2] = 0
     attrib.current.needsUpdate = true
-  }, [])
+  };
   return (
-    <points 
-      onPointerOver={hover}
-      onPointerOut={unhover}
+    <points
+      onPointerOver={over}
+      onPointerOut={out}
     >
       <bufferGeometry attach="geometry">
         <bufferAttribute attachObject={["attributes", "position"]} count={positions.length / 3} array={positions} itemSize={3} />
-        <bufferAttribute ref={attrib} attachObject={["attributes", "color"]} count={colors.length /3} array={colors} itemSize={3} />
+        <bufferAttribute ref={attrib} attachObject={["attributes", "color"]} count={colors.length / 3} array={colors} itemSize={3} />
       </bufferGeometry>
       <pointsMaterial attach="material" vertexColors size={3} />
     </points>
   )
 }
 
-function BoardRender({gameBoard, tileData}) {
+function BoardRender({ gameBoard, tileData }) {
   let board = gameBoard;
   let tileArray = [];
   let tilePositions = [];
   Object.keys(board).map(key => {
-    if(board[key] && board[key].type === 'tile') {
+    if (board[key] && board[key].type === 'tile') {
       // Set initail tile position
-      let tilePos = [0,0,0];
+      let tilePos = [0, 0, 0];
       // Get tile position from board dictionary
       let tileXYZ = key.split(',');
       // Parse strings to ints
@@ -163,7 +167,7 @@ function BoardRender({gameBoard, tileData}) {
       tileXYZ[2] = parseInt(tileXYZ[2]);
       tilePositions.push(tileXYZ);
       // Calculate 2 coords from 3
-      tilePos[0] = (tileXYZ[2] * (Math.sqrt(3))/2) * 10;
+      tilePos[0] = (tileXYZ[2] * (Math.sqrt(3)) / 2) * 10;
       tilePos[1] = ((tileXYZ[0] + tileXYZ[1]) / 2) * 10;
       tilePos[2] = 0;
       // Push array with point positions to Array
@@ -173,7 +177,7 @@ function BoardRender({gameBoard, tileData}) {
   return (
     // Map through array and render a Hex piece on each tile position, with associated tile type
     tileArray.map((pos, index) => {
-      return(
+      return (
         <Suspense fallback={null}>
           <Hex position={pos} key={index} tile={tileData[tilePositions[index]].type} />
           <NumberTile position={pos} number={tileData[tilePositions[index]].numberToken} key={index} />
@@ -183,39 +187,36 @@ function BoardRender({gameBoard, tileData}) {
   )
 }
 
-function NumberTile({position, number}) {
+function NumberTile({ position, number }) {
   var loader = new THREE.FontLoader();
   var font = loader.parse(helvetikerBold);
-  const config = useMemo(() => ({font, size: 6, height: 1, curveSegments: 20}),
-  [font]);
-  if(number===undefined) {
+  const config = { font, size: 6, height: 1, curveSegments: 20 };
+  if (number === undefined) {
     number = '';
   }
 
   return (
-    <mesh position={[position[0]-3,position[1]-4, position[2]]}>
+    <mesh position={[position[0] - 3, position[1] - 4, position[2]]}>
       <textGeometry attach="geometry" center={true} args={[number.toString(), config]} />
       <meshBasicMaterial attach="material" color='black' />
     </mesh>
   )
 
 }
-    
+
 class GameView extends Component {
   render() {
-    console.log(this.props.gameState);
     return (
       <Canvas
-      camera={{ position: [0, 0, 70], fov: 70}}
-      style={{width: window.innerWidth/2, height: window.innerHeight}}
-      pixelRatio={window.pixelRatio}
-      id="canvas"
+        camera={{ position: [0, 0, 70], fov: 70 }}
+        style={{ width: window.innerWidth / 2, height: window.innerHeight }}
+        pixelRatio={window.pixelRatio}
+        id="canvas"
       >
-        <axesHelper args={10} />
         <Suspense fallback={null}>
           <BoardRender gameBoard={this.props.gameState.gameGrid} tileData={this.props.gameState.tileAssignments} />
           <Point gameBoard={this.props.gameState.gameGrid} />
-          {/* <Line gameBoard={this.props.gameState.gameGrid} /> */}
+          <Line gameBoard={this.props.gameState.gameGrid} />
         </Suspense>
       </Canvas>
     );

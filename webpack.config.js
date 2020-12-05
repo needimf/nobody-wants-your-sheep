@@ -45,7 +45,8 @@ module.exports = {
       filename: './index.html',
     }),
     new Dotenv(),
-    new CopyPlugin([
+    new CopyPlugin({
+      patterns: [
       {
         from: './src/assets/icons/favicon/apple-touch-icon.png',
         to: './assets/icons/favicon/apple-touch-icon.png',
@@ -86,6 +87,6 @@ module.exports = {
         from: './src/assets/tiles/wheatTile2.jpg',
         to: './assets/tiles/wheatTile2.jpg',
       },
-    ]),
+    ]}),
   ],
 };
