@@ -1,6 +1,6 @@
-#gameSidebar {
+#gameSidebarRight {
   color: white;
-  width: 30%;
+  width: 20%;
   height: 100%;
   position: absolute;
   top: 66px;
@@ -10,15 +10,27 @@
   align-items: center;
 }
 
+#gameSidebarLeft {
+  color: white;
+  width: 20%;
+  height: 100%;
+  position: absolute;
+  top: 66px;
+  left: 0px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .playerBar {
   justify-content: space-between;
-  width: 50%;
+  width: 100%;
   height: 90%;
 }
 
 .actionBar {
   justify-content: space-between;
-  width: 50%;
+  width: 100%;
   height: 90%;
 }
 

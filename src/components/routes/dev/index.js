@@ -25,7 +25,7 @@ class Dev extends Component {
         <img className="logo" src="https://i.imgur.com/qAK9gXT.png" alt="" />
         <div style={{ width: '100%' }}>
           <h1 className="text-white">Start New Game</h1>
-          <Link to={{ type: 'GAME', payload: { gameId: '1' }}}>Start New</Link>
+          <Link to={{ type: 'LOBBY'}}>Start New</Link>
         </div>
       </div>
     );

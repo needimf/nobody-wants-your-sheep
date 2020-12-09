@@ -1,9 +1,10 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import User from '../../store/user';
-import MainLayout from '../../components/layouts/main/index.js'
-import GameLayout from '../../components/layouts/game/index.js'
-import LobbyLayout from '../../components/layouts/lobby/index.js'
+import MainLayout from '../../components/layouts/main/index.js';
+import GameLayout from '../../components/layouts/game/index.js';
+import LobbyLayout from '../../components/layouts/lobby/index.js';
+import ColorLayout from '../../components/layouts/color/index.js';
 
 import routes from '../routes';
 
@@ -36,13 +37,10 @@ class Root extends Component {
     this.state = {
       loggedIn: false,
       fetchedLoginStatus: false,
-      playerSelected: false,
+      startGame: false,
+      playerColor: undefined
     };
-    this.colorSelected = this.colorSelected.bind(this);
-  }
-
-  colorSelected(color) {
-    this.setState({playerSelected: true, color: color});
+    this.startGame = this.startGame.bind(this);
   }
 
   componentDidMount() {
@@ -61,6 +59,10 @@ class Root extends Component {
     });
   }
 
+  startGame(number, color) {
+    this.setState({...this.state, startGame: true, playerColor: color, playerNumber: number})
+  }
+
   render() {
     console.log(this.state)
     if (this.props.route !== 'home' && this.props.route !== 'login' && this.props.route !== 'notFound') {
@@ -71,16 +73,23 @@ class Root extends Component {
     if(this.props.route === 'login') {
       return <Component />
     }
+    if(this.props.route === 'lobby') {
+      return <MainLayout loggedIn={this.state.loggedIn}>
+                <LobbyLayout select={this.colorSelected} />
+                <Component />
+            </MainLayout>
+    }
     if(this.props.route === 'game') {
-      if(this.state.playerSelected) {
+      if(this.state.startGame) {
+        console.log(this.state.startGame, this.state.playerColor)
         return <MainLayout loggedIn={this.state.loggedIn}>
-                <GameLayout color={this.state.color} />
+                <GameLayout color={this.state.playerColor} number={this.state.playerNumber} />
                 <Component />
               </MainLayout>
       }
       return <MainLayout loggedIn={this.state.loggedIn}>
-                <LobbyLayout select={this.colorSelected} />
-                <Component />
+              <ColorLayout start={this.startGame} />
+              <Component />
             </MainLayout>
     }
     return <MainLayout loggedIn={this.state.loggedIn}>
