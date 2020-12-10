@@ -70,14 +70,34 @@ export function create(data) {
   return async (dispatch, getState) => {
     dispatch({ type: actionTypes.createStart });
     const newGame = await firebase.database().ref('games').push();
+
+    const gameGrid = generateGameGrid();
+    const tileAssignments = assignTypesAndNumberTokensToTiles(gameGrid);
+    const robberLocation = Object.keys(tileAssignments).find((key) => tileAssignments[key] === 'desert');
+    const resourceCards = getResourceCards(data.gameType);
+    const developmentCards = getDevCards(data.gameType);
+
     const newGameData = {
-      ...data,
       _id: newGame.key(),
       _createdAt: Date.now(),
+      gameGrid,
+      tileAssignments,
+      gameType: data.gameType,
+      robberLocation,
+      buildings: {},
+      roads: {},
+      resourceCards,
+      developmentCards,
+      players: {
+        [data.userId]: initialPlayerState,
+      },
+      privatePlayerState: {
+        [data.userId]: initialPrivatePlayerState,
+      },
     };
     return newGame.set(newGameData, (error) => {
       if (error) {
-        dispatch({ type: actionTypes.createError, data: { error }});
+        dispatch({ type: actionTypes.createError, data: { error } });
       } else {
         dispatch({ type: actionTypes.createSuccess });
       }
@@ -236,7 +256,6 @@ function getResourceCards(gameType) {
         sheep: 19,
         wheat: 19,
       };
-      
   }
 }
 
@@ -284,3 +303,54 @@ const TRADITIONAL_NUMBER_ASSIGNMENT = [
   { coordinate: '2,1,1', number: 11 },
   { coordinate: '0,0,0', number: null },
 ];
+
+const NUMBER_TOKENS = {
+  2: 1,
+  3: 2,
+  4: 2,
+  5: 2,
+  6: 2,
+  8: 2,
+  9: 2,
+  10: 2,
+  11: 2,
+  12: 1,
+};
+
+function getRandomInt(min, max) {
+  const minimum = Math.ceil(min);
+  const maximum = Math.floor(max);
+  return Math.floor(Math.random() * (maximum - minimum)) + minimum; // The maximum is exclusive and the minimum is inclusive
+}
+
+const initialPlayerState = {
+  available: {
+    city: 4,
+    settlement: 5,
+    road: 15,
+  },
+  resourceCount: 0,
+  built: {
+    city: 0,
+    settlement: 0,
+    road: 0,
+  },
+};
+
+const initialPrivatePlayerState = {
+  devCards: {
+    knight: 0,
+    usedKnights: 0,
+    victoryPoint: 0,
+    roadBuilder: 0,
+    monopoly: 0,
+    yearOfPlenty: 0,
+  },
+  resources: {
+    wood: 0,
+    brick: 0,
+    ore: 0,
+    wheat: 0,
+    sheep: 0,
+  },
+}
