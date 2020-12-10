@@ -52,8 +52,10 @@ function Hex({ position, tile }) {
 function Line({gameBoard}) {
   let board = gameBoard;
   let tileArray = [];
+  let pointArray = [];
+  let lineArray = [];
   Object.keys(board).map(key => {
-    if(board[key] && board[key].type === 'point') {
+    if(board[key] && board[key].type === 'tile') {
       key.split(',').forEach((string) => {
         tileArray.push(parseInt(string))
       });
@@ -61,93 +63,104 @@ function Line({gameBoard}) {
   });
   let i = 0;
   while(i < tileArray.length) {
-    let x = tileArray[i];
-    tileArray[i] = (tileArray[i+2] * (Math.sqrt(3)/2))*10;
-    tileArray[i+1] = ((x + tileArray[i+1]) / 2) *10;
-    tileArray[i+2] = .009;
+    let center = [tileArray[i], tileArray[i+1], tileArray[i+2]]; // Center tile
+    // Bottom Middle Point
+    pointArray.push([center[0]-1, center[1]-1, center[2]]); 
+    // Bottom Left Point
+    pointArray.push([center[0]-1, center[1], center[2]-1]);
+    // Top Left Point
+    pointArray.push([center[0], center[1]+1, center[2]-1]);
+    // Top Middle Point
+    pointArray.push([center[0]+1, center[1]+1, center[2]]);
+    // Top Right Point
+    pointArray.push([center[0]+1, center[1], center[2]+1]);
+    // Bottom Right Point
+    pointArray.push([center[0], center[1]-1, center[2]+1]);
+    for(let j = 0; j < 6; j++) {
+      let coordinate = [...pointArray[(i/3)*6+j]];
+      let x = coordinate[0];
+      coordinate[0] = (coordinate[2] * (Math.sqrt(3)/2))*10;
+      coordinate[1] = ((x + coordinate[1]) / 2) *10;
+      coordinate[2] = .009;
+      let coord1 = coordinate;
+      coordinate = [...pointArray[(i/3)*6+((j+1)%6)]];
+      x = coordinate[0];
+      coordinate[0] = (coordinate[2] * (Math.sqrt(3)/2))*10;
+      coordinate[1] = ((x + coordinate[1]) / 2) *10;
+      coordinate[2] = .009;
+      let coord2 = coordinate;
+      if(!lineArray.includes([coord1,coord2]) && !lineArray.includes([coord2, coord1])) {
+        lineArray.push([coord1, coord2]);
+      }
+    }
     i+=3;
-  }
-  i = 1;
-  var vertices = [];
-  for(i; i<tileArray.length/3; i++) {
-    var points = [];
-    points.push(new THREE.Vector3(tileArray[(i-1)*3], tileArray[((i-1)*3)+1], tileArray[((i-1)*3)+2])); // Top Right
-    points.push(new THREE.Vector3(tileArray[i*3], tileArray[(i*3)+1], tileArray[(i*3)+2])); //Top Left
-    vertices.push(points);
   }
   const [hover, setHover] = useState(null);
   return (
-    <>
-      {
-        vertices.map((vertex, index) => (
-          <line 
-            key={index} 
-            onPointerOver={(e) => {setHover(index)}} 
-            onPointerOut={(e) => {setHover(null)}}
-          >
-            <geometry 
-              attach="geometry" 
-              vertices={vertex} 
-            />
-            <lineBasicMaterial attach="material" color={index === hover ? 'green' : 'white'} />
-          </line>
-          )
+    lineArray.map((vertex, index) => {
+      vertex[0] = new THREE.Vector3(vertex[0][0], vertex[0][1], vertex[0][2]);
+      vertex[1] = new THREE.Vector3(vertex[1][0], vertex[1][1], vertex[1][2]);
+      return (
+        <line 
+          onPointerOver={(e) => {setHover(index)}} 
+          onPointerOut={(e) => {setHover(null)}}
+          key={index}
+        >
+          <geometry 
+            attach="geometry" 
+            vertices={vertex} 
+          />
+          <lineBasicMaterial attach="material" color={hover === index ? 'green' : 'white'} />
+        </line>
         )
-      }
-    </>
+      })
   )
 }
 
 function Point({ gameBoard }) {
   let board = gameBoard;
-  let tileArray = [];
+  let coordinateArray = [];
+  let pointArray = [];
   Object.keys(board).map(key => {
     if (board[key] && board[key].type === 'point') {
       key.split(',').forEach((string) => {
-        tileArray.push(parseInt(string))
+        coordinateArray.push(parseInt(string))
       });
     }
   });
   let i = 0;
-  let color = [];
-  while (i < tileArray.length) {
-    let x = tileArray[i];
-    tileArray[i] = (tileArray[i + 2] * (Math.sqrt(3) / 2)) * 10;
-    tileArray[i + 1] = ((x + tileArray[i + 1]) / 2) * 10;
-    tileArray[i + 2] = .01;
-    color.push(0);
-    color.push(10);
-    color.push(0);
+  let copyArray = coordinateArray;
+  while (i < coordinateArray.length) {
+    let x = coordinateArray[i];
+    coordinateArray[i] = (coordinateArray[i + 2] * (Math.sqrt(3) / 2)) * 10;
+    coordinateArray[i + 1] = ((x + coordinateArray[i + 1]) / 2) * 10;
+    coordinateArray[i + 2] = .01;
+    pointArray.push([coordinateArray[i], coordinateArray[i + 1], coordinateArray[i + 2]]);
     i += 3;
   }
-  var positions = new Float32Array(tileArray);
-  var colors = new Float32Array(color);
-  const attrib = useRef();
   const over = e => {
     e.stopPropagation()
-    attrib.current.array[e.index * 3] = 0
-    attrib.current.array[e.index * 3 + 1] = 0
-    attrib.current.array[e.index * 3 + 2] = 10
-    attrib.current.needsUpdate = true
+    console.log([copyArray[e.object.name*3],copyArray[e.object.name*3+1],copyArray[e.object.name*3+2]])
   }
 
   const out = e => {
-    attrib.current.array[e.index * 3] = 0
-    attrib.current.array[e.index * 3 + 1] = 10
-    attrib.current.array[e.index * 3 + 2] = 0
-    attrib.current.needsUpdate = true
   };
+  let img = useLoader(THREE.TextureLoader, '../../assets/tiles/wheatTile2.jpg');
   return (
-    <points
-      onPointerOver={over}
-      onPointerOut={out}
-    >
-      <bufferGeometry attach="geometry">
-        <bufferAttribute attachObject={["attributes", "position"]} count={positions.length / 3} array={positions} itemSize={3} />
-        <bufferAttribute ref={attrib} attachObject={["attributes", "color"]} count={colors.length / 3} array={colors} itemSize={3} />
-      </bufferGeometry>
-      <pointsMaterial attach="material" vertexColors size={3} />
-    </points>
+    pointArray.map((pointCoord, index) => {
+      return (
+      <mesh
+        position={pointCoord}
+        onPointerOver={over}
+        onPointerOut={out}
+        key={index}
+        name={index}
+      >
+        <boxBufferGeometry attach="geometry" args={[4,4,.2]} />
+        <meshBasicMaterial attach="material" map={img} />
+      </mesh>
+      )
+    })
   )
 }
 
