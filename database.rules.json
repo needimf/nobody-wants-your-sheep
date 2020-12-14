@@ -13,7 +13,7 @@
         "state": {
           ".read": "auth.uid != null",
           ".write": "root.child('users').child(auth.uid).child('games').child($gameId).val() != null",
-          "users": {
+          "players": {
             "$userId": {
               ".write": "$userId === auth.uid"
             }
