@@ -105,12 +105,74 @@ export function create(data) {
   };
 }
 
+export function createPlayer(gameId, playerId, data) {
+  return async (dispatch, getState) => {
+    dispatch({ type: actionTypes.updateStart });
+
+    const updates = {
+      [`games/${gameId}/players/${playerId}`]: {
+        ...initialPlayerState,
+        color: data.color || null,
+      },
+      [`games/${gameId}/privatePlayerState/${playerId}`]: initialPrivatePlayerState,
+    };
+
+    return firebase.database().ref().update(updates, (error) => {
+      if (error) {
+        dispatch({ type: actionTypes.updateError, data: { error } });
+      } else {
+        dispatch({ type: actionTypes.updateSuccess });
+      }
+    });
+  };
+}
+
+export function updatePlayer(gameId, playerId, data) {
+  return async (dispatch, getState) => {
+    dispatch({ type: actionTypes.updateStart });
+
+    const updateData = {
+      ...data,
+    };
+
+    return firebase.database().ref(`games/${gameId}/players/${playerId}`).update(updateData, (error) => {
+      if (error) {
+        dispatch({ type: actionTypes.updateError, data: { error } });
+      } else {
+        dispatch({ type: actionTypes.updateSuccess });
+      }
+    });
+  };
+}
+
+export function updatePrivatePlayerState(gameId, playerId, data) {
+  return async (dispatch, getState) => {
+    dispatch({ type: actionTypes.updateStart });
+
+    const updateData = {
+      ...data,
+    };
+
+    return firebase.database().ref(`games/${gameId}/privatePlayerState/${playerId}`).update(updateData, (error) => {
+      if (error) {
+        dispatch({ type: actionTypes.updateError, data: { error } });
+      } else {
+        dispatch({ type: actionTypes.updateSuccess });
+      }
+    });
+  };
+}
+
 export default {
   reducer,
   sync,
   clear,
   syncPrivatePlayerData,
   clearPrivatePlayerData,
+  create,
+  createPlayer,
+  updatePlayer,
+  updatePrivatePlayerState,
 };
 
 // Private Helpers
