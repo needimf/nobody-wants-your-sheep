@@ -2,8 +2,7 @@
   "router": {
     "HOME": "/",
     "DEV": "/dev",
-    "GAME": "/games/:gameId",
     "LOGIN": "/login",
-    "LOBBY": "/lobby"
+    "GAME": "/play/:gameId"
   }
 }
