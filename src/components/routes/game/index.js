@@ -1,11 +1,12 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
+import GameView from '../../containers/gameView'
 
 import './index.css';
 
 const mapStateToProps = (state, props) => {
   return {
-    state,
+    gameState: state.gamePlay,
   };
 };
 
@@ -14,12 +15,12 @@ const mapDispatchToProps = (dispatch, props) => {
   })
 }
     
-class Dev extends Component {
+class Game extends Component {
   render() {
     return (
       <div className="home-container">
-        <img className="logo" src="https://i.imgur.com/qAK9gXT.png" alt="" />
         <div style={{ width: '100%' }}>
+          <GameView />
           <h1 className="text-white">Welcome to your new game</h1>
         </div>
       </div>
@@ -27,4 +28,4 @@ class Dev extends Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Dev);
+export default connect(mapStateToProps, mapDispatchToProps)(Game);
