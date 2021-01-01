@@ -12,7 +12,7 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = (dispatch, props) => {
   return ({
-    initializeGame: () => dispatch({ type: 'initializeGame', data: {gameType: 'classic'} }),
+    initializeGame: () => dispatch({ type: 'initializeGame', data: { gameType: 'classic' } }),
   })
 }
     
@@ -23,7 +23,6 @@ class Game extends Component {
 }
 
   render() {
-    console.log(this.props.state);
     return (
       <div className="home-container">
         <div style={{ width: '100%' }}>
