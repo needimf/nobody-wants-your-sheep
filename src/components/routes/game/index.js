@@ -15,7 +15,7 @@ const mapDispatchToProps = (dispatch, props) => {
   })
 }
     
-class Dev extends Component {
+class Game extends Component {
   render() {
     return (
       <div className="home-container">
