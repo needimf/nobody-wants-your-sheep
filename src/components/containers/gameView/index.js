@@ -138,26 +138,17 @@ function Point({ gameBoard }) {
     pointArray.push([coordinateArray[i], coordinateArray[i + 1], coordinateArray[i + 2]]);
     i += 3;
   }
-  const over = e => {
-    e.stopPropagation()
-    console.log([copyArray[e.object.name*3],copyArray[e.object.name*3+1],copyArray[e.object.name*3+2]])
-  }
-
-  const out = e => {
-  };
   let img = useLoader(THREE.TextureLoader, '../../assets/tiles/wheatTile2.jpg');
   return (
     pointArray.map((pointCoord, index) => {
       return (
       <mesh
         position={pointCoord}
-        onPointerOver={over}
-        onPointerOut={out}
         key={index}
         name={index}
       >
-        <boxBufferGeometry attach="geometry" args={[4,4,.2]} />
-        <meshBasicMaterial attach="material" map={img} />
+        <boxBufferGeometry attach="geometry" args={[2,2,.2]} />
+        <meshBasicMaterial attach="material" color='white' />
       </mesh>
       )
     })
@@ -170,7 +161,7 @@ function BoardRender({ gameBoard, tileData }) {
   let tilePositions = [];
   Object.keys(board).map(key => {
     if (board[key] && board[key].type === 'tile') {
-      // Set initail tile position
+      // Set initial tile position
       let tilePos = [0, 0, 0];
       // Get tile position from board dictionary
       let tileXYZ = key.split(',');
