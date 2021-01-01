@@ -1,0 +1,44 @@
+button {
+  border: none;
+  background-color: black;
+  color: white;
+  border-radius: 2px;
+  margin: 0px auto auto 4px;
+  padding-bottom: 4px;
+}
+
+.navbar-nav {
+  flex-direction: row;
+}
+
+li {
+  color: white;
+}
+
+button:hover {
+  background-color: grey;
+}
+
+button:focus {
+  outline: none;
+}
+
+#logoBrand {
+  height: 40px;
+  width: 50px;
+}
+
+#links {
+  padding: 5px;
+}
+
+.linkText {
+  text-decoration: none;
+  color: white;
+}
+
+.linkText:hover {
+  text-decoration: none;
+  cursor: pointer;
+  color: orange;
+}

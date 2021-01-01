@@ -4,6 +4,9 @@ const initialState = {
 };
 
 const initialPlayerState = {
+  color: undefined,
+  chosen: false,
+  uuid: undefined,
   available: {
     city: 4,
     settlement: 5,
@@ -50,6 +53,7 @@ export default (state = initialState, action) => {
         roads: {},
         resourceCards,
         developmentCards,
+        numberPlayers: 0,
         players: {
           1: initialPlayerState,
           2: initialPlayerState,
@@ -158,6 +162,20 @@ export default (state = initialState, action) => {
 
     //   return { ...state, ...stateDiff };
     // }
+    case 'addPlayer': {
+      const stateDiff = { ...state };
+
+      stateDiff.players = { ...state.players }
+      stateDiff.players[action.data.number] = { ...state.players[action.data.number], chosen: true, uuid: action.data.playerId, color: action.data.color}
+      return { ...state, ...stateDiff };
+    }
+    case 'removePlayer': {
+      const stateDiff = { ...state };
+
+      stateDiff.players = { ...state.players }
+      stateDiff.players[action.data.number] = { ...state.players[action.data.number], chosen: false, uuid: undefined, color: undefined}
+      return { ...state, ...stateDiff };
+    }
     default:
       return state;
   }
@@ -171,7 +189,7 @@ export default (state = initialState, action) => {
 // };
 
 export const initializeGame = () => (dispatch) => {
-  dispatch({ type: 'initializeGame' });
+  dispatch({ type: 'initializeGame', data: {gameType: 'classic'} });
 };
 
 // internal functions

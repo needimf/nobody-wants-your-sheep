@@ -6,6 +6,8 @@ const components = {
   GAME: 'game',
   LOGIN: 'login',
   [NOT_FOUND]: 'notFound',
+  LOGIN: 'login',
+  LOBBY: 'lobby'
 };
 
 export default (state = 'home', action = {}) => components[action.type] || state;

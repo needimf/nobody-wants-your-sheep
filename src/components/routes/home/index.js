@@ -1,5 +1,5 @@
-import React, {Component} from 'react';
-import {connect} from 'react-redux';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 import './index.css';
 
@@ -11,14 +11,12 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = (dispatch, props) => {
   return ({
-    initializeGame: () => dispatch({ type: 'initializeGame', data: { gameType: 'classic' } }),
   })
 }
-    
+
 class Home extends Component {
 
   componentDidMount() {
-    this.props.initializeGame();
   }
 
   render() {
